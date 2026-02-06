@@ -469,36 +469,42 @@ function getSectionSlideFromGlobalIndex(globalIndex) {
 // ============================================
 // INITIALIZATION
 // ============================================
-function initPortfolio() {
-    // Only initialize if we're on portfolio page
-    if (!document.querySelector('.slide')) return;
-    
-    updateDisplay();
-    generateToC();
-    updateNav();
-    
-    // NEW: Make clicks jump to that section
-    sectionLinks.forEach(link => {
-        link.addEventListener('click', (e) => {
-            e.preventDefault();
-            const s = Number(link.dataset.section) || 0;
-            showSlide(s, 0);               // your existing function
-        });
-    });
-    
-    // NEW: Accessible focus + keyboard
-    sectionLinks.forEach(link => link.setAttribute('role', 'link'));
-    sectionLinks.forEach(link => link.tabIndex = 0);
-    sectionLinks.forEach(link => {
-        link.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                const s = Number(link.dataset.section) || 0;
-                showSlide(s, 0);
-            }
-        });
-    });
-}
+
+
+        // Add to your initialization function
+        function initPortfolio() {
+            // Only initialize if we're on portfolio page
+            if (!document.querySelector('.slide')) return;
+            
+            // Check viewport and set notice visibility
+            checkViewportAndSetNotice();
+            
+            updateDisplay();
+            generateToC();
+            updateNav();
+            
+            // Make clicks jump to that section
+            sectionLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const s = Number(link.dataset.section) || 0;
+                    showSlide(s, 0);               // your existing function
+                });
+            });
+            
+            // Accessible focus + keyboard
+            sectionLinks.forEach(link => link.setAttribute('role', 'link'));
+            sectionLinks.forEach(link => link.tabIndex = 0);
+            sectionLinks.forEach(link => {
+                link.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        const s = Number(link.dataset.section) || 0;
+                        showSlide(s, 0);
+                    }
+                });
+            });
+        }
 
 // ============================================
 // EVENT LISTENERS
@@ -654,40 +660,6 @@ document.addEventListener('keydown', (e) => {
             }
         }
 
-        // Add to your initialization function
-        function initPortfolio() {
-            // Only initialize if we're on portfolio page
-            if (!document.querySelector('.slide')) return;
-            
-            // Check viewport and set notice visibility
-            checkViewportAndSetNotice();
-            
-            updateDisplay();
-            generateToC();
-            updateNav();
-            
-            // Make clicks jump to that section
-            sectionLinks.forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const s = Number(link.dataset.section) || 0;
-                    showSlide(s, 0);               // your existing function
-                });
-            });
-            
-            // Accessible focus + keyboard
-            sectionLinks.forEach(link => link.setAttribute('role', 'link'));
-            sectionLinks.forEach(link => link.tabIndex = 0);
-            sectionLinks.forEach(link => {
-                link.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        const s = Number(link.dataset.section) || 0;
-                        showSlide(s, 0);
-                    }
-                });
-            });
-        }
 
         // Add window resize listener to handle orientation changes
         window.addEventListener('resize', checkViewportAndSetNotice);

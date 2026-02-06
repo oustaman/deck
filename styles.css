@@ -533,7 +533,7 @@ input:focus, button:focus, a:focus, [tabindex]:focus-visible {
    MARK CLASSIFICATION TOOL
    ============================================ */
 .mark-tool-container {
-  width: 75%;
+  width: 100%;
   background-color: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: 0.5rem;
@@ -619,7 +619,7 @@ input:focus, button:focus, a:focus, [tabindex]:focus-visible {
 }
 
 .toggle-switch.active {
-  background-color: var(--accent);
+  background-color: #e5e7eb;
 }
 
 .toggle-option {
