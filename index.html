@@ -1,365 +1,67 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mike Oustamanolakis, PhD — Systems Strategist</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link rel="stylesheet" href="styles.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,700;0,800;1,700;1,800&display=swap" rel="stylesheet">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-<style>
-/* Case slides: one grammar for all three. */
-.kicker{font-size:.75rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-tertiary);margin-bottom:1rem}
-.case h1{font-size:3rem;font-weight:200;letter-spacing:-.01em;line-height:1.1;margin-bottom:.6rem}
-.case .divergence{font-size:1.35rem;font-weight:300;color:var(--text-secondary);margin-bottom:2.2rem;max-width:56ch}
-.psi{display:grid;grid-template-columns:9rem minmax(0,1fr);border-top:1px solid var(--border-color);max-width:62rem}
-.psi dt,.psi dd{padding:1rem 0;border-bottom:1px solid var(--border-color);margin:0}
-.psi dt{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-tertiary);padding-top:1.25rem}
-.psi dd{font-size:1.2rem;font-weight:300;line-height:1.55;color:var(--text-primary)}
-.psi dd.impact{font-weight:400}
-.psi dd ul{margin:0;padding-left:1.2rem;list-style:disc}
-.psi dd li+li{margin-top:.35rem}
-.fam ul{list-style:disc}
-.status{font-size:.85rem;color:var(--text-tertiary);margin-top:1rem}
-.proto{width:100%;height:68vh;border:1px solid var(--border-color);border-radius:10px;background:#fff}
-.cases-index{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:1.5rem;margin-top:2.5rem;max-width:62rem}
-.cases-index a{display:block;border-top:2px solid var(--text-primary);padding-top:.8rem;color:inherit;text-decoration:none}
-.cases-index b{display:block;font-weight:500;font-size:1.1rem;margin-bottom:.3rem}
-.cases-index span{font-size:.95rem;color:var(--text-secondary);font-weight:300}
-.def{font-size:1.6rem;font-weight:300;line-height:1.5;max-width:46ch;border-left:2px solid var(--text-primary);padding-left:1.4rem;margin:2rem 0 0}
-.def b{font-weight:500}
-/* Repository figure */
-.code{font-family:ui-monospace,Menlo,monospace;font-size:1.9rem;letter-spacing:.02em;margin:0 0 1rem}
-.code span{border-bottom:3px solid var(--text-primary);padding-bottom:.1rem}
-.fname{font-family:ui-monospace,Menlo,monospace;font-size:.85rem;color:var(--text-tertiary);margin:0 0 1rem;word-break:break-all}
-.parts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--border-color);border:1px solid var(--border-color);margin-bottom:2rem}
-.parts div{background:var(--bg-primary);padding:.8rem 1rem}
-.parts b{display:block;font-family:ui-monospace,Menlo,monospace;font-size:1.05rem;margin-bottom:.25rem}
-.parts span{font-size:.88rem;color:var(--text-secondary);line-height:1.4}
-.fams{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.8rem}
-.fam{border:1px solid var(--border-color);border-top:2px solid var(--text-primary);padding:.8rem .9rem}
-.fam h3{font-weight:500;font-size:1rem;margin:0 0 .4rem}
-.fam h3 i{font-family:ui-monospace,Menlo,monospace;font-style:normal;font-size:.8rem;margin-right:.35rem;color:var(--text-tertiary)}
-.fam ul{margin:0;padding-left:1rem;font-size:.82rem;color:var(--text-secondary);line-height:1.5}
-.figlabel{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-tertiary);margin:0 0 .8rem}
-@media (max-width:900px){.parts{grid-template-columns:repeat(2,1fr)}.fams{grid-template-columns:repeat(2,1fr)}.psi{grid-template-columns:1fr}.psi dt{border-bottom:0;padding-bottom:0}}
-</style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mike Oustamanolakis, PhD — selected work</title>
+<meta name="description" content="Mike Oustamanolakis gives shape to complicated issues — for leadership teams in Hong Kong, mainland China and the UK.">
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="site.css">
 </head>
 <body>
-    <!-- Desktop Notice -->
-    <div class="desktop-notice">
-       <b> Best reviewed on desktop.</b><br>
-Several sections rely on spatial layout, cross-referencing, and interactive prototypes that are difficult to assess on mobile.
-    </div>
+<div class="wrap">
 
-    <!-- Top Navigation -->
-    <nav class="top-nav fixed w-full z-40">
-        <div class="progress-bar"><div class="progress-fill" id="sectionProgress"></div></div>
-        <div class="max-w-7xl mx-auto px-4 md:px-8 py-3">
-            <div class="flex items-center justify-between gap-3">
-                <div class="flex items-center gap-3 md:gap-6 flex-wrap">
-            <a href="#section-0-slide-0" class="nav-link active" id="intro">
-                <span class="flex items-center gap-2"><span class="section-marker"></span><span class="hidden sm:inline">Intro</span></span>
-            </a>
-                    <div class="nav-section-divider hidden md:block"></div>
-            <a href="#" class="nav-link" data-section="1">
-                <span class="flex items-center gap-2"><span class="section-marker"></span><span class="hidden sm:inline">Factory</span></span>
-            </a>
-            <a href="#" class="nav-link" data-section="2">
-                <span class="flex items-center gap-2"><span class="section-marker"></span><span class="hidden sm:inline">Repository</span></span>
-            </a>
-            <a href="#" class="nav-link" data-section="3">
-                <span class="flex items-center gap-2"><span class="section-marker"></span><span class="hidden sm:inline">Room Finder</span></span>
-            </a>
-                </div>
-                <!-- Controls - Same Row -->
-                <div class="flex items-center gap-1.5 md:gap-2">
-                    
-                    <!-- Table of Contents -->
-                    <button class="control-pill text-xs" id="tocBtn" title="Table of Contents">
-                        <!-- Desktop: icon + label -->
-                        <span class="hidden md:inline flex items-center gap-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M9 12h6m-6 4h6m2 4H7a2 2 0 01-2-2V6a2 2 0 012-2h6l6 6v10a2 2 0 01-2 2z" />
-                            </svg>
-                            ToC
-                        </span>
+<header class="top"><a href="index.html">Mike Oustamanolakis, PhD</a><span>Selected work</span></header>
 
-                        <!-- Mobile: icon only -->
-                        <span class="md:hidden flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M9 12h6m-6 4h6m2 4H7a2 2 0 01-2-2V6a2 2 0 012-2h6l6 6v10a2 2 0 01-2 2z" />
-                            </svg>
-                        </span>
-                    </button>
+<p class="name">Mike Oustamanolakis, PhD</p>
+<h1>I give shape to complicated issues.</h1>
+<p class="lead">For leadership teams in Hong Kong, mainland China and the UK, when an organisation’s
+information, rules or services no longer fit the people who use them.</p>
 
-                    <!-- Search -->
-                    <button class="control-pill text-xs" id="searchBtn" title="Search">
-                        <span class="hidden md:inline flex items-center gap-1">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                        </span>
-                        <span class="md:hidden flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                        </span>
-                    </button>
+<ul class="creds">
+  <li><b>20+ years</b>across Europe and Asia</li>
+  <li><b>7 years</b>running a design consultancy in Hong Kong</li>
+  <li><b>PhD</b>The Hong Kong Polytechnic University</li>
+  <li><b>Now</b>in UK higher education</li>
+</ul>
 
-                        <!-- Keyboard shortcuts -->
-                        <button class="control-pill text-xs" id="kbdInfo" title="Keyboard Shortcuts">
-                            <!-- Desktop / Medium and up -->
-                            <span class="hidden md:inline flex items-center gap-1">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <rect x="2" y="6" width="20" height="12" rx="2" ry="2"></rect>
-                                    <path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"></path>
-                                </svg>
-                                Keys
-                            </span>
+<h2>When leaders bring me in</h2>
+<ul class="when">
+  <li>A programme is failing, and the people in it no longer agree what it is for.</li>
+  <li>People cannot find what they need, so they ask, wait, or do the work twice.</li>
+  <li>Two systems say different things, and the organisation follows the wrong one.</li>
+</ul>
 
-                            <!-- Mobile / Small screens -->
-                            <span class="md:hidden flex items-center justify-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
-                                    viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <rect x="2" y="6" width="20" height="12" rx="2" ry="2"></rect>
-                                    <path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"></path>
-                                </svg>
-                            </span>
-                        </button>
-
-                    <div class="font-controls">
-                        <button id="decreaseFont"><strong>—</strong></button>
-                        <button id="increaseFont"><strong>+</strong></button>
-                    </div>
-            </div>
-        </div>
-    </nav>
-    <!-- Main Content Area -->
-    <main class="pt-14 pb-24 px-6">
-
-        <div class="slide active" data-section="0" data-slide="0">
-            <div class="slide-content py-16">
-                <div class="kicker">1.1 — Mike Oustamanolakis, PhD</div>
-                <h1 class="text-6xl font-extralight mb-6 tracking-tight">Systems Strategist</h1>
-                <p class="text-3xl font-light" style="color: var(--text-secondary); line-height: 1.45;">I make complex subjects understandable.</p>
-                <p class="def"><b>Divergence</b> is where an organisation's model of the world and the world itself
-                disagree — and the model wins. I find it, and redesign the system until the two agree.</p>
-                <div class="cases-index">
-                    <a href="#section-1-slide-0"><b>Factory wayfinding</b><span>Two campuses, one way to find any place</span></a>
-                    <a href="#section-2-slide-0"><b>Repository rescue</b><span>A failing programme across four jurisdictions</span></a>
-                    <a href="#section-3-slide-0"><b>Room Finder</b><span>15,000+ rooms, one search</span></a>
-                </div>
-                <p class="status" style="margin-top:2.5rem">Three cases, two slides each: the case, then the work. ← → to move.</p>
-            </div>
-        </div>
-        <div class="slide" data-section="1" data-slide="0">
-            <div class="slide-content py-16 case">
-                <div class="kicker">2.1 — Case</div>
-                <h1>Factory wayfinding and machine directory</h1>
-                <p class="divergence">The plan numbered the buildings. People navigated by names.</p>
-                <dl class="psi">
-                    <dt>Client</dt><dd>NDA · a state-owned manufacturer in China · 2018–2020</dd>
-                    <dt>Problem</dt><dd>Two campuses of five to six buildings each. Visitors, inspectors and officials could not find their way, and several signage schemes by architects and interior designers had not stuck.</dd>
-                    <dt>Solution</dt><dd>Memorable names instead of numbers: places named after cities, safety exits after classical poets. Bilingual posters pointing to the two nearest exits, and a bilingual web app for every machine, its manuals, checklists and directions between buildings.</dd>
-                    <dt>Impact</dt><dd class="impact"><ul><li>Agreed in two months, delivered in one: first floor prototyped in week 1, one building live in week 2, a one-week pilot, then every required floor on both campuses.</li><li>Visitors, inspectors and officials found their way without help.</li><li>A follow-up commission from the same client.</li></ul></dd>
-                </dl>
-                
-            </div>
-        </div>
-        <div class="slide" data-section="1" data-slide="1">
-            <div class="slide-content py-16 case">
-                <div class="kicker">2.2 — The prototype</div>
-                <iframe class="proto" src="prototypes/factory.html" title="Factory directory prototype" loading="lazy"></iframe><p class="status">Rebuilt as static pages; factory names and locations withheld.</p>
-            </div>
-        </div>
-        <div class="slide" data-section="2" data-slide="0">
-            <div class="slide-content py-16 case">
-                <div class="kicker">3.1 — Case</div>
-                <h1>A shared document repository, rescued</h1>
-                <p class="divergence">File names said nothing about what the files were.</p>
-                <dl class="psi">
-                    <dt>Client</dt><dd>NDA · the board of a group of companies in Greater China</dd>
-                    <dt>Problem</dt><dd>A failing programme. Four teams in Macau, Taiwan, Guangzhou and Hong Kong, under four legal systems, and no shared way to name or find the group’s contracts, patents and agreements.</dd>
-                    <dt>Solution</dt><dd>Rewrote the brief with the board and cut its scope; gave each team its own brief; stand-ups every three days. Designed one naming convention for every company, five families for more than fifty kinds of document, and search that narrows by family, signatory, place and year.</dd>
-                    <dt>Impact</dt><dd class="impact"><ul><li>Several recurring meetings a week removed.</li><li>Chat channels that existed only to find documents closed.</li><li>Duplicated work stopped: companies in the group no longer worked on the same thing without knowing.</li></ul></dd>
-                </dl>
-                
-            </div>
-        </div>
-        <div class="slide" data-section="2" data-slide="1">
-            <div class="slide-content py-16 case">
-                <div class="kicker">3.2 — The system</div>
-                
-                <p class="figlabel">A name that says what the document is</p>
-                <p class="fname">ZC.F.20200923.0_Zenithasia_Corp._2020_Financial_Statement.pdf</p>
-                <p class="code"><span>ZC</span> . <span>F</span> . <span>20200923</span> . <span>0</span></p>
-                <div class="parts">
-                    <div><b>ZC</b><span>The company, as an initialism</span></div>
-                    <div><b>F</b><span>The family: Legal · Financial · HR · Strategic · Operational</span></div>
-                    <div><b>20200923</b><span>The date</span></div>
-                    <div><b>0</b><span>A sequence number for the same day</span></div>
-                </div>
-                <p class="figlabel">Five families, more than fifty kinds of document</p>
-                <div class="fams">
-                    <div class="fam"><h3><i>L</i>Legal</h3><ul><li>Contracts</li><li>Supplier agreements</li><li>Patents, trademarks</li><li>Joint ventures, licences</li><li>NDAs</li></ul></div>
-                    <div class="fam"><h3><i>F</i>Financial</h3><ul><li>Statements</li><li>Budgets</li><li>Tax returns</li><li>Invoices, orders</li><li>Insurance, bank</li></ul></div>
-                    <div class="fam"><h3><i>H</i>HR</h3><ul><li>Employment agreements</li><li>Manuals, policies</li><li>Procedures</li><li>Training</li></ul></div>
-                    <div class="fam"><h3><i>S</i>Strategic</h3><ul><li>Proposals</li><li>Marketing</li><li>Board minutes</li><li>Plans, forecasts</li></ul></div>
-                    <div class="fam"><h3><i>O</i>Operational</h3><ul><li>Project plans</li><li>Quality, incidents</li><li>Health and safety</li><li>Specifications</li></ul></div>
-                </div>
-                <p class="status">Company names are the fictional ones from the original design.</p>
-            </div>
-        </div>
-        <div class="slide" data-section="3" data-slide="0">
-            <div class="slide-content py-16 case">
-                <div class="kicker">4.1 — Case</div>
-                <h1>Room Finder</h1>
-                <p class="divergence">The records said one thing. The rooms said another.</p>
-                <dl class="psi">
-                    <dt>Client</dt><dd>A large UK university</dd>
-                    <dt>Problem</dt><dd>Finding a suitable room meant asking colleagues, searching booking systems, walking the campus or raising a ticket: from half an hour to weeks. The institution’s own records disagreed with each other, so no single source could be trusted.</dd>
-                    <dt>Solution</dt><dd>One search built from the files the institution already had: floor plans, furniture layouts, teaching profiles and occupancy surveys, joined into one interface. Where two records disagree, the conflict is listed for correction at source.</dd>
-                    <dt>Impact</dt><dd class="impact"><ul><li>More than 15,000 rooms in over 40 buildings, in one search.</li><li>Conflicts between records surfaced and listed for correction.</li><li>A six-week pilot with timetabling proposed.</li></ul></dd>
-                </dl>
-                <p class="status">Status: prototype. The demo on the next slide is a fictional campus, Castlegate University, built for teaching.</p>
-            </div>
-        </div>
-        <div class="slide" data-section="3" data-slide="1">
-            <div class="slide-content py-16 case">
-                <div class="kicker">4.2 — The demo</div>
-                <iframe class="proto" src="prototypes/room-finder.html" title="Castlegate University Room Finder demo" loading="lazy"></iframe>
-            </div>
-        </div>
-    </main>
-
-    <!-- Button Bar -->
-    <footer class="button-bar fixed bottom-0 w-full z-40">
-        <div class="max-w-6xl mx-auto px-4 md:px-8 py-3">
-            <div class="flex items-center justify-between gap-3">
-                <button id="prevBtn" class="nav-button text-sm">
-                    <span class="hidden md:inline">Previous</span>
-                    <span class="md:hidden">Prev</span>
-                    <span class="text-xs hidden sm:inline" style="color: var(--text-tertiary);">(← Left Key)</span>
-                </button>
-                
-                <div class="flex items-center gap-3 md:gap-6">
-                    <div class="mini-progress hidden md:flex" id="miniProgress"></div>
-                    <span id="slideCounter" class="text-xs md:text-sm" style="color: var(--text-secondary);"></span>
-                </div>
-                
-                <button id="nextBtn" class="nav-button text-sm">
-                    <span class="hidden md:inline">Next</span>
-                    <span class="md:hidden">Next</span>
-                    <span class="text-xs hidden sm:inline" style="color: var(--text-tertiary);">(→ Right Key)</span>
-                </button>
-            </div>
-        </div>
-    </footer>
-
-    <!-- Table of Contents Modal -->
-    <div id="tocModal" class="modal">
-        <div class="modal-content">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-2xl font-semibold">Table of Contents</h2>
-                <button id="closeToc" class="control-pill">✕</button>
-            </div>
-            <div id="tocContent" class="toc-grid"></div>
-        </div>
-    </div>
-
-    <!-- Search Modal -->
-    <div id="searchModal" class="modal">
-        <div class="modal-content">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-2xl font-semibold">Search Portfolio</h2>
-                <button id="closeSearch" class="control-pill">✕</button>
-            </div>
-            <input type="text" id="searchInput" class="search-input" placeholder="Search slides...">
-            <div id="searchResults" class="mt-6"></div>
-        </div>
-    </div>
-
-<!-- Keyboard Shortcuts Modal -->
-<style>
-  .modal { position:fixed; inset:0; background:rgba(0,0,0,.5); display:none; }
-  .modal[open], .modal.show { display:block; }
-  .modal-content {
-    position:relative; margin:5vh auto; max-height:90vh; overflow:auto;
-    max-width:980px; background:var(--bg-primary,#fff); border-radius:12px; padding:24px;
-  }
-  .control-pill { display:inline-flex; align-items:center; padding:.25rem .5rem; border-radius:9999px; border:1px solid var(--border,#ddd); }
-</style>
-
-<div id="kbdModal" class="modal" role="dialog" aria-labelledby="kbdTitle" aria-modal="true" aria-hidden="true">
-  <div class="modal-content">
-    <div class="flex items-center justify-between mb-6">
-      <h2 id="kbdTitle" class="text-2xl font-semibold">Keyboard Shortcuts</h2>
-      <button id="closeKbd" class="control-pill" aria-label="Close">✕</button>
-    </div>
-
-    <div class="space-y-4" style="color: var(--text-secondary);">
-      <div class="grid grid-cols-2 gap-4">
-        <!-- Navigation -->
-        <div class="p-4" style="background-color: var(--bg-secondary); border-radius: 0.5rem;">
-          <h3 class="font-semibold mb-2" style="color: var(--text-primary);">Navigation</h3>
-          <div class="space-y-2 text-sm">
-            <div class="flex justify-between"><span>Next slide</span><kbd class="control-pill text-xs">→</kbd></div>
-            <div class="flex justify-between"><span>Previous slide</span><kbd class="control-pill text-xs">←</kbd></div>
-            <div class="flex justify-between"><span>Jump to section</span><kbd class="control-pill text-xs">1–4</kbd></div>
-          </div>
-        </div>
-
-        <!-- Controls -->
-        <div class="p-4" style="background-color: var(--bg-secondary); border-radius: 0.5rem;">
-          <h3 class="font-semibold mb-2" style="color: var(--text-primary);">Controls</h3>
-          <div class="space-y-2 text-sm">
-            <div class="flex justify-between"><span>Toggle theme (Dark mode incomplete)</span><kbd class="control-pill text-xs">D</kbd></div>
-            <div class="flex justify-between"><span>Increase font</span><kbd class="control-pill text-xs">+</kbd></div>
-            <div class="flex justify-between"><span>Decrease font</span><kbd class="control-pill text-xs">−</kbd></div>
-          </div>
-        </div>
-
-        <!-- Features -->
-        <div class="p-4" style="background-color: var(--bg-secondary); border-radius: 0.5rem;">
-          <h3 class="font-semibold mb-2" style="color: var(--text-primary);">Features</h3>
-          <div class="space-y-2 text-sm">
-            <div class="flex justify-between"><span>Table of Contents</span><kbd class="control-pill text-xs">T</kbd></div>
-            <div class="flex justify-between"><span>Search</span><kbd class="control-pill text-xs">S</kbd></div>
-            <div class="flex justify-between"><span>This help</span><kbd class="control-pill text-xs">?</kbd></div>
-          </div>
-        </div>
-
-        <!-- Tips -->
-        <div class="p-4" style="background-color: var(--bg-secondary); border-radius: 0.5rem;">
-          <h3 class="font-semibold mb-2" style="color: var(--text-primary);">Tips</h3>
-          <div class="space-y-2 text-sm">
-            <div>Click section names to jump</div>
-            <div>Green dot = active section</div>
-            <div>Progress dots show position</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
+<h2>Three cases</h2>
+<div class="cases">
+  <a class="case-card" href="repository.html">
+    <span class="k">Group of companies · Greater China</span>
+    <span class="t">A failing programme back on track, and 15–20 hours a week down to two</span>
+    <span class="s">Six contributors, four jurisdictions, one way to file and find everything.</span>
+    <span class="go">Read the case →</span>
+  </a>
+  <a class="case-card" href="factory.html">
+    <span class="k">Manufacturing · China</span>
+    <span class="t">Two factory campuses anyone can find their way around, delivered in half the time</span>
+    <span class="s">Agreed in two months, delivered in one, then extended by the client.</span>
+    <span class="go">Read the case →</span>
+  </a>
+  <a class="case-card" href="room-finder.html">
+    <span class="k">Higher education · UK</span>
+    <span class="t">15,000 rooms, one answer</span>
+    <span class="s">An estate’s scattered records joined into one search, with their contradictions listed.</span>
+    <span class="go">Read the case →</span>
+  </a>
 </div>
+<p class="note">Client names are withheld. Figures are measured, or marked as estimates; where there
+is no figure, none is given.</p>
 
-<script src="script.js"></script>
+<h2>Contact</h2>
+<ul class="contact">
+  <li><a href="mailto:mike@mikko.gr">mike@mikko.gr</a></li>
+  <li><a href="https://www.linkedin.com/in/oustamanolakis">LinkedIn</a></li>
+</ul>
 
-
+</div>
 </body>
 </html>
