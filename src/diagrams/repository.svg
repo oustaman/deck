@@ -1,0 +1,14 @@
+<svg viewBox="0 0 340 150" role="img" aria-labelledby="f1t">
+    <title id="f1t">Time spent across the group each week searching for documents and meeting about them: 15 to 20 hours before, about 2 hours after.</title>
+    <text x="0" y="12" font-size="11" font-weight="600">Hours a week, across the group</text>
+    <text x="0" y="26" font-size="10" fill="#555">searching for documents, and calls and meetings about them</text>
+    <text x="0" y="62" font-size="11">Before</text>
+    <rect x="52" y="50" width="165" height="16" fill="#111"/>
+    <rect x="217" y="50" width="55" height="16" fill="none" stroke="#111" stroke-width="1"/>
+    <text x="278" y="62" font-size="13" font-weight="700">15–20</text>
+    <text x="0" y="96" font-size="11">After</text>
+    <rect x="52" y="84" width="22" height="16" fill="#111"/>
+    <text x="80" y="96" font-size="13" font-weight="700">about 2</text>
+    <line x1="52" y1="44" x2="52" y2="108" stroke="#111" stroke-width="1"/>
+    <text x="0" y="135" font-size="10" fill="#555">Outlined part of the bar: the range of the estimate.</text>
+  </svg>

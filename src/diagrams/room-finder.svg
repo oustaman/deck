@@ -1,0 +1,22 @@
+<svg viewBox="0 0 340 190" role="img" aria-labelledby="f3t">
+    <title id="f3t">Four separate sources — floor plans, furniture layouts, teaching profiles and occupancy surveys — joined into one search over more than 15,000 rooms, with the conflicts between records listed for correction.</title>
+    <text x="0" y="12" font-size="11" font-weight="600">Four sets of records, one search</text>
+    <g font-size="11">
+      <rect x="0" y="28" width="150" height="26" fill="none" stroke="#111"/><text x="10" y="45">Floor plans</text>
+      <rect x="0" y="62" width="150" height="26" fill="none" stroke="#111"/><text x="10" y="79">Furniture layouts</text>
+      <rect x="0" y="96" width="150" height="26" fill="none" stroke="#111"/><text x="10" y="113">Teaching profiles</text>
+      <rect x="0" y="130" width="150" height="26" fill="none" stroke="#111"/><text x="10" y="147">Occupancy surveys</text>
+    </g>
+    <g stroke="#111" stroke-width="1" fill="none">
+      <path d="M150 41 C185 41 185 92 210 92"/><path d="M150 75 C180 75 185 92 210 92"/>
+      <path d="M150 109 C180 109 185 92 210 92"/><path d="M150 143 C185 143 185 92 210 92"/>
+    </g>
+    <rect x="210" y="62" width="130" height="60" fill="#111"/>
+    <text x="220" y="82" font-size="13" font-weight="700" style="fill:#fff">One search</text>
+    <text x="220" y="98" font-size="11" style="fill:#fff">15,000+ rooms</text>
+    <text x="220" y="112" font-size="11" style="fill:#fff">40+ buildings</text>
+    <line x1="275" y1="122" x2="275" y2="140" stroke="#111" stroke-dasharray="3,2"/>
+    <text x="210" y="155" font-size="11">Where records disagree:</text>
+    <text x="210" y="170" font-size="11">listed for correction</text>
+    <text x="0" y="184" font-size="10" fill="#555">Outlined: written records. Solid: what people now use.</text>
+  </svg>

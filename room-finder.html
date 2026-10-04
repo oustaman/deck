@@ -5,36 +5,42 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>15,000 rooms, one answer — Mike Oustamanolakis, PhD</title>
 <meta name="robots" content="noindex">
+<meta property="og:title" content="15,000 rooms, one answer">
+<meta property="og:image" content="img/share-room-finder.png">
 <link rel="stylesheet" href="site.css">
 </head>
 <body>
 <div class="wrap">
-
 <header class="top"><a href="index.html">Mike Oustamanolakis, PhD</a><span>Case 3 of 3</span></header>
 
 <h1>15,000 rooms, one answer</h1>
-<p class="lead">Finding a suitable room took anything from half an hour to weeks, and the
-institution’s own records disagreed about what its rooms held.</p>
+<p class="lead">Finding a suitable room took anything from half an hour to weeks, and the institution’s own records disagreed about what its rooms held.</p>
 
-<figure class="shot"><img src="img/room-finder.jpg" alt="The Room Finder search: a search for one building returns its 28 rooms in a table with floor, use, area and seats, with filters for function, seats and room type on the left." loading="lazy"><figcaption>The working prototype, shown on Castlegate, a fictional campus built for teaching.</figcaption></figure>
+<div class="ba">
+  <div class="ba-head"><span>Before</span><span></span><span>After</span></div>
+  <div class="ba-row big"><div class="ba-b">Half an hour to weeks to find a suitable room</div><div class="ba-arrow" aria-hidden="true">→</div><div class="ba-a">One search across 15,000+ rooms in 40+ buildings</div></div>
+  <div class="ba-row"><div class="ba-b">Four sets of records that disagreed with each other</div><div class="ba-arrow" aria-hidden="true">→</div><div class="ba-a">Joined into one, with every conflict listed for correction</div></div>
+  <div class="ba-row"><div class="ba-b">No single source anyone trusted</div><div class="ba-arrow" aria-hidden="true">→</div><div class="ba-a">One place to look, built only from existing files</div></div>
+  <p class="ba-note">Working prototype; a six-week pilot is proposed, measured on time to answer.</p>
+</div>
+<p class="ba-get"><a href="img/share-room-finder.png" download>Download this summary as an image</a></p>
+
+<figure class="mock">
+<div class="mk mk-rooms" role="img" aria-label="Room Finder on Castlegate, a fictional campus: a search for Glassworks returns 28 rooms, 12 learning spaces and 546 seats, listed with floor, name, use, area and seats, with filters for seats and function.">
+  <div class="mk-bar"><b>RF</b><span class="mk-search"><span>Glassworks</span></span></div>
+  <div class="mk-chips mk-filters"><b class="on">Teaching spaces</b><b>Timetabled</b><b>30+ seats</b><b>Computer lab</b><b>Studio</b></div>
+  <p class="mk-stats"><b>28</b> rooms <b>12</b> learning spaces <b>546</b> seats <b>1,599</b> m²</p>
+  <table><thead><tr><th>Room</th><th>Floor</th><th class="opt">Known as</th><th>Use</th><th class="opt num">m²</th><th class="num">Seats</th></tr></thead><tbody><tr><td><b>GW G.03</b></td><td>Ground</td><td class="opt">Lecture Theatre 1</td><td>Lecture theatre</td><td class="opt num">180</td><td class="num">120</td></tr><tr><td><b>GW G.04</b></td><td>Ground</td><td class="opt">Seminar Room</td><td>Teaching room</td><td class="opt num">55</td><td class="num">30</td></tr><tr><td><b>GW 1.01</b></td><td>1</td><td class="opt">Seminar Room</td><td>Teaching room</td><td class="opt num">60</td><td class="num">40</td></tr><tr><td><b>GW 1.02</b></td><td>1</td><td class="opt">Seminar Room</td><td>Teaching room</td><td class="opt num">61</td><td class="num">40</td></tr><tr><td><b>GW 1.04</b></td><td>1</td><td class="opt">Computer Room</td><td>Computer lab</td><td class="opt num">95</td><td class="num">40</td></tr><tr><td><b>GW 2.01</b></td><td>2</td><td class="opt">Design Studio</td><td>Studio</td><td class="opt num">120</td><td class="num">30</td></tr></tbody></table>
+  <p class="mk-conflict"><b>1 conflict</b> GW 1.04: layout shows 40 seats, timetable lists 36. Listed for correction.</p>
+</div><figcaption>Re-created from the working prototype, on Castlegate, a fictional campus built for teaching.</figcaption></figure>
 
 <h2>Who</h2>
-<dl class="facts">
-  <dt>Client</dt><dd>A large UK university</dd>
-  <dt>Scale</dt><dd>More than 15,000 rooms in over 40 buildings</dd>
-  <dt>My role</dt><dd>Designed and built it</dd>
-  <dt>Status</dt><dd>Working prototype; pilot proposed</dd>
-</dl>
+<dl class="facts"><dt>Client</dt><dd>A large UK university</dd><dt>Scale</dt><dd>More than 15,000 rooms in over 40 buildings</dd><dt>My role</dt><dd>Designed and built it</dd><dt>Status</dt><dd>Working prototype; pilot proposed</dd></dl>
 
 <h2>What</h2>
-<p>To find a room that fitted a class, staff asked colleagues (about half an hour), searched booking
-systems (about 45 minutes), walked the campus (about two hours), or raised a ticket (hours to weeks).
-The records behind those systems did not agree with each other: a room’s furniture count and its
-timetabled seats could differ.</p>
+<p>To find a room that fitted a class, staff asked colleagues (about half an hour), searched booking systems (about 45 minutes), walked the campus (about two hours), or raised a ticket (hours to weeks). The records behind those systems did not agree with each other: a room’s furniture count and its timetabled seats could differ.</p>
 
-<h2>How</h2>
-<figure>
-  <svg viewBox="0 0 340 190" role="img" aria-labelledby="f3t">
+<h2>How</h2><figure><svg viewBox="0 0 340 190" role="img" aria-labelledby="f3t">
     <title id="f3t">Four separate sources — floor plans, furniture layouts, teaching profiles and occupancy surveys — joined into one search over more than 15,000 rooms, with the conflicts between records listed for correction.</title>
     <text x="0" y="12" font-size="11" font-weight="600">Four sets of records, one search</text>
     <g font-size="11">
@@ -55,31 +61,13 @@ timetabled seats could differ.</p>
     <text x="210" y="155" font-size="11">Where records disagree:</text>
     <text x="210" y="170" font-size="11">listed for correction</text>
     <text x="0" y="184" font-size="10" fill="#555">Outlined: written records. Solid: what people now use.</text>
-  </svg>
-  <figcaption>Built only from files the institution already had. No new data was collected.</figcaption>
-</figure>
-<ol class="did">
-  <li><b>Used what already existed.</b> Floor plans, furniture layouts, teaching profiles and
-  occupancy surveys, joined into one place, with nothing new to collect.</li>
-  <li><b>Made one search answer the real question:</b> which room, where, how many seats, set up for
-  what kind of teaching.</li>
-  <li><b>Listed every contradiction instead of hiding it.</b> Where two records disagree, the system
-  does not pick a winner; it lists the conflict so the owner can fix it at source.</li>
-  <li><b>Proposed how to prove it:</b> a six-week pilot, measured on how long it takes to answer real
-  questions.</li>
-</ol>
+  </svg><figcaption>Built only from files the institution already had. No new data was collected.</figcaption></figure>
+<ol class="did"><li><b>Used what already existed.</b> Floor plans, furniture layouts, teaching profiles and occupancy surveys, joined into one place, with nothing new to collect.</li><li><b>Made one search answer the real question:</b> which room, where, how many seats, set up for what kind of teaching.</li><li><b>Listed every contradiction instead of hiding it.</b> Where two records disagree, the system does not pick a winner; it lists the conflict so the owner can fix it at source.</li><li><b>Proposed how to prove it:</b> a six-week pilot, measured on how long it takes to answer real questions.</li></ol>
 
 <h2>Impact</h2>
-<ul class="changed">
-  <li><b>One search</b><span>across more than 15,000 rooms in over 40 buildings</span></li>
-  <li><b>Contradictions visible</b><span>conflicts between records listed for correction at source</span></li>
-  <li><b>Next: a pilot</b><span>six weeks, measured on time to answer</span></li>
-</ul>
-
+<ul class="changed"><li><b>One search</b><span>across more than 15,000 rooms in over 40 buildings</span></li><li><b>Contradictions visible</b><span>conflicts between records listed for correction at source</span></li><li><b>Next: a pilot</b><span>six weeks, measured on time to answer</span></li></ul>
 <p class="see"><a href="prototypes/room-finder.html">See it working: a teaching version with a fictional campus →</a></p>
-
 <nav class="next"><a href="factory.html">← Previous</a><a href="index.html">All cases →</a></nav>
-
 </div>
 </body>
 </html>
