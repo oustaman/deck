@@ -157,14 +157,14 @@ CASES = [
       ('Two months agreed for delivery',
        'Delivered in one', 'big')],
   ba_note='Two campuses, five to six buildings each. 2018–2020.',
-  stat=('1', 'month, not 2', 'from the first floor to every required floor on both campuses'),
+  stat=('1 month', 'time to complete the project', 'It was scheduled for two: from the first floor to every required floor on both campuses.'),
   figs=[(MOCK_POSTERS, 'Four posters from the series, re-created. Each names a place after a city and points to the two nearest exits, named after poets. These sit alongside the mandated green exit signs; they do not replace them.'),
         (SCREEN_PLACE, ''), (SCREEN_MACHINE, ''), (SCREEN_ROUTE, 'Three screens from the phone app, re-created with sample data. Sites withheld.')],
   how_fig=None,
   who=[('Client', 'NDA · Electronics manufacturer'),
        ('Region', 'Mainland China, 2018–2020'),
        ('Scale', 'Two campuses of five to six buildings each'),
-       ('My role', 'Led the work through my consultancy')],
+       ('My role', 'Design Lead and Managing Director. Led the design and its delivery through my consultancy.')],
   what='Staff moved between buildings by bicycle, scooter and golf cart. Workers, engineers, visitors, health inspectors and government officials all needed to find a place, a machine or a safe way out, and the numbering made sense only to the people who already knew it.',
   how=[('Named places instead of numbering them.', 'Areas took the names of cities, safety exits the names of classical poets: names people already carry in their heads. The named exits sit alongside the mandated green exit signs; they do not replace them.'),
        ('Put both languages on every sign,', 'with arrows to the two nearest exits.'),
@@ -196,7 +196,7 @@ CASES = [
   who=[('Client', 'The board of a group of five companies'),
        ('Region', 'Macau, Taiwan, Guangzhou and Hong Kong: four legal systems'),
        ('People', 'About 50, of whom about 40 in mainland China and Macau'),
-       ('My role', 'Brought in to rescue the programme')],
+       ('My role', 'Programme Design Lead. Brought in to rescue the programme.')],
   what='Each company kept its documents its own way. Finding one agreement for an audit meant asking around, calling and meeting. Companies in the group sometimes worked on the same thing without knowing. The programme to fix this had stalled: designers wanted freedom, engineers wanted structure, management wanted savings, and nobody held them together.',
   how=[('Started with the board, not the backlog.', 'We went through the brief line by line, cut what they did not need, and agreed what could actually be delivered.'),
        ('Gave each team its own brief', 'inside the shared plan, with short check-ins every three days, under strict confidentiality.'),
@@ -226,7 +226,7 @@ CASES = [
   how_fig=None,
   who=[('Client', 'A large UK university'),
        ('Scale', 'More than 15,000 rooms in over 40 buildings'),
-       ('My role', 'Designed and built it'),
+       ('My role', 'Lead Architect. Designed and built it.'),
        ('Status', 'Working prototype; pilot proposed')],
   what='To find a room that fitted a class, staff asked colleagues (about half an hour), searched booking systems (about 45 minutes), walked the campus (about two hours), or raised a ticket (hours to weeks). The records behind those systems did not agree with each other: a room’s furniture count and its timetabled seats could differ.',
   how=[('Used what already existed.', 'Floor plans, furniture layouts, teaching profiles and occupancy surveys, joined into one place, with nothing new to collect.'),
@@ -256,8 +256,8 @@ def page(title, body, extra_head='', active='home'):
 </head>
 <body>
 <div class="wrap">
-{body}
 {site_nav(active)}
+{body}
 </div>
 </body>
 </html>
@@ -265,8 +265,11 @@ def page(title, body, extra_head='', active='home'):
 
 def site_nav(active):
     items = [('home', 'index.html', 'Home')] + [(c['slug'], f"{c['slug']}.html", c['nav']) for c in CASES]
-    links = ''.join(f'<a href="{href}"{" class=\"on\" aria-current=\"page\"" if key == active else ""}>{label}</a>' for key, href, label in items)
-    return f'<footer class="site-nav"><nav aria-label="Pages">{links}</nav></footer>'
+    links = ''.join(f'<a href="{href}"{" class=\"on\" aria-current=\"page\"" if key == active else ""}'
+                    f'{f" aria-label=\"{label}\"" if label.startswith("Case: ") else ""}>{label.replace("Case: ", "")}</a>'
+                    for key, href, label in items)
+    return (f'<header class="top"><a class="who" href="index.html">{NAME}</a>'
+            f'<nav class="menu" aria-label="Pages">{links}</nav></header>')
 
 def ba_block(c, share=False):
     rows = ''.join(f'''
@@ -289,9 +292,7 @@ def case_page(c, i):
     see = f'<p class="see"><a href="{c["see"][0]}">{c["see"][1]}</a></p>' if c['see'] else ''
     nav_l = f'<a href="{prev_["slug"]}.html">← Previous</a>' if prev_ else '<a href="index.html">← All cases</a>'
     nav_r = f'<a href="{next_["slug"]}.html">Next: {next_["short"].lower() if next_["short"][0].islower() else next_["short"]} →</a>' if next_ else '<a href="index.html">All cases →</a>'
-    body = f'''<header class="top"><a href="index.html">{NAME}</a><span>Case {c['n']} of {len(CASES)}</span></header>
-
-<h1>{c['title']}</h1>
+    body = f'''<h1>{c['title']}</h1>
 <p class="lead">{c['lead']}</p>
 
 <div class="stat"><p class="stat-n">{' '.join(f'<span>{t}</span>' for t in c['stat'][0].replace(' → ', ' →\u00a0').split(' '))}</p><p class="stat-u">{c['stat'][1]}</p><p class="stat-c">{c['stat'][2]}</p></div>
@@ -323,9 +324,7 @@ def home():
     <span class="s">{c['card_s']}</span>
     <span class="go">Read the case →</span>
   </a>''' for c in CASES)
-    body = f'''<header class="top"><a href="index.html">{NAME}</a><span>Selected work</span></header>
-
-<h1>{LINE}</h1>
+    body = f'''<h1>{LINE}</h1>
 <p class="lead">For leadership teams in Hong Kong, mainland China and the UK, when an organisation’s
 information, rules or services no longer fit the people who use them.</p>
 

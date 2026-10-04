@@ -229,13 +229,13 @@ body.shot-thumb .mk-poster .zh { font-size: 6rem; }
   .mk-phone { flex: 0 1 16rem; }
 }
 
-/* ── Site navigation (footer) ───────────────────────────────────────────── */
-.site-nav { margin-top: 3rem; padding-top: 1.2rem; border-top: 1px solid var(--rule); }
-.site-nav nav { display: flex; flex-wrap: wrap; gap: .5rem; }
-.site-nav a { text-decoration: none; font-size: .82rem; font-weight: 500; padding: .45rem .8rem; border: 1px solid var(--rule); border-radius: 999px; color: var(--ink-2); white-space: nowrap; }
-.site-nav a:hover { border-color: var(--ink); color: var(--ink); }
-.site-nav a.on { background: var(--ink); border-color: var(--ink); color: var(--paper); }
-nav.next { margin-top: 3.2rem; }
+/* ── Site menu (top) ─────────────────────────────────────────────────── */
+header.top { flex-wrap: wrap; align-items: center; row-gap: .7rem; }
+header.top .who { margin-right: auto; }
+.menu { display: flex; flex-wrap: wrap; gap: .35rem; }
+.menu a { text-decoration: none; font-size: .8rem; font-weight: 500; padding: .38rem .75rem; border: 1px solid var(--rule); border-radius: 999px; color: var(--ink-2); white-space: nowrap; }
+.menu a:hover { border-color: var(--ink); color: var(--ink); }
+.menu a.on { background: var(--ink); border-color: var(--ink); color: var(--paper); }
 
 /* ── One phone screen at a time, with what it solves ────────────────────── */
 .mk-screen { display: grid; grid-template-columns: 1fr; gap: 1.3rem; padding: 1.4rem; background: #ecebe7; align-items: center; }
@@ -251,4 +251,8 @@ figure.mock + figure.mock { margin-top: 1rem; }
 @media (min-width: 620px) {
   .mk-screen { grid-template-columns: auto 1fr; gap: 2rem; padding: 1.8rem 2rem; }
   .mk-screen .mk-phone { width: 15rem; }
+}
+@media (max-width: 520px) {
+  .menu { flex-wrap: nowrap; gap: .25rem; overflow-x: auto; width: 100%; scrollbar-width: none; }
+  .menu a { font-size: .76rem; padding: .34rem .62rem; }
 }
