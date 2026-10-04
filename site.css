@@ -26,7 +26,8 @@ p + p { margin-top: 1rem; }
 
 /* Big number */
 .stat { margin: 2.4rem 0 0; padding: 1.4rem 0 1.2rem; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--rule); }
-.stat-n { font: 500 clamp(4.2rem, 19vw, 8.5rem)/.95 var(--serif); letter-spacing: -.04em; font-variant-numeric: lining-nums; font-variation-settings: "opsz" 60; white-space: nowrap; }
+.stat-n { font: 500 clamp(4.2rem, 19vw, 8.5rem)/.95 var(--serif); letter-spacing: -.04em; font-variant-numeric: lining-nums; font-variation-settings: "opsz" 60; }
+.stat-n span { white-space: nowrap; display: inline-block; }
 .stat-u { font: 500 1.35rem/1.25 var(--serif); margin-top: .5rem; }
 .stat-c { font-size: .9rem; color: var(--ink-3); margin-top: .3rem !important; max-width: 30rem; }
 
@@ -226,4 +227,28 @@ body.shot-thumb .mk-poster .zh { font-size: 6rem; }
   figure.mock { width: min(58rem, calc(100vw - 4rem)); margin-left: 50%; transform: translateX(-50%); }
   .mk-screens { justify-content: center; overflow-x: visible; }
   .mk-phone { flex: 0 1 16rem; }
+}
+
+/* ── Site navigation (footer) ───────────────────────────────────────────── */
+.site-nav { margin-top: 3rem; padding-top: 1.2rem; border-top: 1px solid var(--rule); }
+.site-nav nav { display: flex; flex-wrap: wrap; gap: .5rem; }
+.site-nav a { text-decoration: none; font-size: .82rem; font-weight: 500; padding: .45rem .8rem; border: 1px solid var(--rule); border-radius: 999px; color: var(--ink-2); white-space: nowrap; }
+.site-nav a:hover { border-color: var(--ink); color: var(--ink); }
+.site-nav a.on { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+nav.next { margin-top: 3.2rem; }
+
+/* ── One phone screen at a time, with what it solves ────────────────────── */
+.mk-screen { display: grid; grid-template-columns: 1fr; gap: 1.3rem; padding: 1.4rem; background: #ecebe7; align-items: center; }
+.mk-screen .mk-phone { width: min(15.5rem, 72vw); aspect-ratio: 9 / 19.5; justify-self: center; overflow: hidden;
+  border: 9px solid #141414; border-radius: 32px; padding: 1.4rem .9rem 1rem; background: #fff; font-size: 12px; position: relative; }
+.mk-screen .mk-phone::before { content: ""; position: absolute; top: 6px; left: 50%; transform: translateX(-50%); width: 34%; height: 14px; background: #141414; border-radius: 10px; }
+.mk-notes { background: #fff; border: 1px solid var(--rule); padding: 1rem 1.1rem 1.1rem; }
+.mk-q { font: 500 1.2rem/1.25 var(--serif); letter-spacing: -.01em; margin-bottom: .6rem; }
+.mk-notes ul { list-style: none; }
+.mk-notes li { position: relative; padding: .45rem 0 .45rem 1.1rem; border-top: 1px solid var(--rule); font-size: .9rem; line-height: 1.45; color: var(--ink-2); }
+.mk-notes li::before { content: "→"; position: absolute; left: 0; color: var(--ink-3); }
+figure.mock + figure.mock { margin-top: 1rem; }
+@media (min-width: 620px) {
+  .mk-screen { grid-template-columns: auto 1fr; gap: 2rem; padding: 1.8rem 2rem; }
+  .mk-screen .mk-phone { width: 15rem; }
 }
