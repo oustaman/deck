@@ -41,7 +41,7 @@ p + p { margin-top: 1rem; }
 .contact li { padding: .35rem 0; }
 
 /* Case pages */
-.facts { display: grid; grid-template-columns: 7.5rem 1fr; border-top: 1px solid var(--rule); margin-top: 2rem; font-size: .95rem; }
+.facts { display: grid; grid-template-columns: 7.5rem 1fr; border-top: 1px solid var(--rule); font-size: .95rem; }
 .facts dt, .facts dd { padding: .6rem 0; border-bottom: 1px solid var(--rule); }
 .facts dt { color: var(--ink-3); font-size: .8rem; letter-spacing: .08em; text-transform: uppercase; padding-top: .8rem; }
 .did { list-style: none; counter-reset: d; }
@@ -56,6 +56,10 @@ p + p { margin-top: 1rem; }
 .changed span { color: var(--ink-2); font-size: .95rem; }
 
 figure { margin: 2.5rem 0 0; }
+h2 + figure { margin: 0 0 1.5rem; }
+.shot img { width: 100%; height: auto; display: block; border: 1px solid var(--rule); }
+.case-card img { display: block; width: calc(100% + 2.4rem); margin: -1.1rem -1.2rem 1rem;
+  aspect-ratio: 16 / 9; object-fit: cover; object-position: left top; border-bottom: 1px solid var(--ink); }
 figure svg { width: 100%; height: auto; display: block; }
 figure svg text { font-family: var(--sans); fill: #111; }
 figcaption { font-size: .85rem; color: var(--ink-3); margin-top: .7rem; }
