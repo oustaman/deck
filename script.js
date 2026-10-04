@@ -12,13 +12,9 @@ let fontSize = 1;
 
 // Special slides with tooltips
 const specialSlides = [
-    { slideNumber: 2, label: "Projects" },
-    { slideNumber: 6, label: "Dipl.pro" },
-    { slideNumber: 11, label: "Mark Classification Tool" },
-    { slideNumber: 12, label: "Marksheet Generator" },
-    { slideNumber: 15, label: "Autonomy by Design" },
-    { slideNumber: 16, label: "UX Dictionary" },
-    { slideNumber: 18, label: "Definition Quality Scorer" }
+    { slideNumber: 2, label: "Factory wayfinding" },
+    { slideNumber: 4, label: "Repository rescue" },
+    { slideNumber: 6, label: "Room Finder" }
 ];
 
 // Get all slides grouped by section
@@ -34,7 +30,7 @@ slides.forEach(slide => {
 });
 
 // Section metadata
-const sectionNames = ['Intro', 'Architecture', 'Delivery', 'Knowledge', 'Style', 'GovTech', 'Contact'];
+const sectionNames = ['Intro', 'Factory', 'Repository', 'Room Finder'];
 
 // ============================================
 // NAVIGATION & MODALS

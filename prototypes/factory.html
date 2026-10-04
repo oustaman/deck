@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Factory directory — prototype · Mike Oustamanolakis, PhD</title>
+<meta name="description" content="A working prototype of the bilingual machine directory from the factory wayfinding case study. Sample data only.">
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://mikko.gr/work/factory-prototype">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23141317'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='19' font-style='italic' text-anchor='middle' fill='%23FBFAF8'%3Em%3C/text%3E%3C/svg%3E">
+<style>
+/* Prototype of the machine directory. Rebuilt from the original design files;
+   all data below is sample data. Self-contained: no dependencies, no build. */
+:root{
+  --bg:#f4f3f0; --screen:#ffffff; --fg:#141317; --fg-2:#56535d; --rule:#d9d6cf;
+  --tag:#fbf0c9; --ok:#dcf2d4; --on:#e1defa; --acc:#7d1a37; --warn:#fde3d7; --warn-fg:#8a2a0a;
+  --z:1;
+  --sans:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang TC","Noto Sans TC",Helvetica,Arial,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#0c0b0f;--screen:#16151b;--fg:#f4f2ee;--fg-2:#a9a5b0;--rule:#2d2b35;
+    --tag:#3a3217;--ok:#1d3419;--on:#2a2650;--acc:#e08aa1;--warn:#3b1f15;--warn-fg:#f3b39a}
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--sans);line-height:1.45}
+.note{max-width:420px;margin:0 auto;padding:1rem 1rem .5rem;font-size:.78rem;color:var(--fg-2);
+  display:flex;justify-content:space-between;gap:1rem}
+.note a{color:var(--fg-2)}
+.screen{max-width:420px;min-height:calc(100vh - 3.5rem);margin:0 auto;background:var(--screen);
+  padding:1.1rem 1.1rem 2.5rem;font-size:calc(1rem * var(--z))}
+@media(min-width:460px){.screen{border:1px solid var(--rule);border-radius:18px;min-height:780px;margin-bottom:2rem}}
+button,select{font:inherit;color:inherit}
+a{color:inherit}
+.bar{display:flex;justify-content:space-between;align-items:center;font-size:.82em;margin-bottom:.8rem;min-height:1.6rem}
+.back{background:none;border:0;padding:.2rem 0;cursor:pointer;display:flex;gap:.4rem;align-items:center;text-align:left}
+.back::before{content:"←";font-size:1.3em;line-height:1}
+.link{background:none;border:0;padding:.2rem 0;cursor:pointer;display:flex;gap:.35rem;align-items:center}
+.link::after{content:"→";font-size:1.3em;line-height:1}
+h1{font-size:1.9em;line-height:1.1;margin:.1rem 0 .6rem;font-weight:600}
+h2{font-size:1.05em;font-weight:500;margin:1.2rem 0 .5rem}
+.place{border:1.5px solid var(--fg);border-radius:14px;padding:.8rem 1rem;margin-bottom:1rem}
+.place small{display:block;font-size:.9em;color:var(--fg-2)}
+.place b{display:block;font-weight:400;font-size:2.1em;line-height:1.15}
+.sub{font-size:.85em;color:var(--fg-2);margin:0 0 .3rem}
+ul.list{list-style:none;padding:0;margin:0}
+ul.list li{border-top:1.5px dotted var(--fg-2)}
+ul.list button{display:block;width:100%;text-align:left;background:none;border:0;padding:.7rem 0;cursor:pointer}
+ul.list .n{display:block;font-size:1.12em;margin-bottom:.35rem}
+.tags{display:flex;flex-wrap:wrap;gap:.3rem}
+.tag{display:inline-block;font-size:.72em;padding:.18rem .5rem;border-radius:4px;background:var(--tag)}
+.tag.ok{background:var(--ok)} .tag.bad{background:var(--warn);color:var(--warn-fg)}
+.fw{font-size:.8em;color:var(--fg-2);border-top:1.5px dotted var(--fg-2);padding-top:.5rem;margin-top:.7rem}
+.docs{display:flex;gap:.45rem;overflow-x:auto;padding:.6rem 0 .4rem;scroll-snap-type:x mandatory}
+.doc{flex:0 0 5.6rem;height:6.6rem;background:var(--tag);border:0;cursor:pointer;font-size:.74em;
+  clip-path:polygon(0 0,78% 0,100% 16%,100% 100%,0 100%);scroll-snap-align:start;padding:.4rem;line-height:1.25}
+.people{display:flex;gap:1.4rem;margin:.6rem 0;border-bottom:1.5px dotted var(--fg-2);padding-bottom:.7rem}
+.person{display:flex;gap:.5rem;align-items:center}
+.av{width:2.3rem;height:2.3rem;border-radius:50%;background:var(--on);display:grid;place-items:center;font-size:1em;flex:none}
+.person small{display:block;font-size:.66em;color:var(--fg-2)}
+.person b{font-weight:400;font-size:1.15em}
+.tabs{display:flex;flex-wrap:wrap;gap:.35rem;margin:.3rem 0 .6rem}
+.tab{background:var(--tag);border:0;border-radius:4px;padding:.25rem .6rem;font-size:.82em;cursor:pointer}
+.tab[aria-selected="true"]{background:var(--on);font-weight:600}
+.box{border:1.5px solid var(--fg);border-radius:12px;padding:.8rem .9rem;margin-top:.4rem}
+.box .hd{display:flex;justify-content:space-between;align-items:flex-start;gap:.5rem;margin-bottom:.4rem}
+.box .hd b{font-size:1.08em;line-height:1.2}
+.zoom{display:flex;gap:.4rem;flex:none}
+.zoom button{width:2rem;height:2rem;border-radius:50%;border:1.5px solid var(--fg);background:none;cursor:pointer;
+  font-size:1.1rem;line-height:1;display:grid;place-items:center}
+.box ol{margin:0;padding-left:1.3rem}
+.box ol li{margin-bottom:.35rem}
+.box ol+ol{margin-top:.8rem}
+.alert{background:var(--warn);color:var(--warn-fg);border-radius:10px;padding:.8rem .9rem;margin:.2rem 0 .9rem}
+.alert b{display:block;margin-bottom:.2rem}
+.alert button{margin-top:.6rem;background:none;border:1.5px solid currentColor;border-radius:6px;padding:.3rem .7rem;cursor:pointer}
+label.f{display:block;font-size:.8em;color:var(--fg-2);margin-top:.5rem}
+select{width:100%;margin-top:.15rem;padding:.55rem .6rem;border:1.5px solid var(--fg);border-radius:10px;background:var(--screen);font-size:1.02em}
+.posters{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-top:.4rem}
+.poster{border:3px solid var(--fg);background:var(--screen);aspect-ratio:3/4;display:flex;flex-direction:column;
+  padding:.55rem .6rem;text-align:left;cursor:pointer}
+.poster .en{font-size:.82em}
+.poster .zh{font-size:2.35em;font-weight:700;line-height:1.05;margin:auto 0}
+.poster .ex{font-size:.64em;line-height:1.45}
+.intro{font-size:.9em;color:var(--fg-2);margin:0 0 .8rem}
+.find{display:flex;gap:.4rem;margin:.3rem 0 .2rem}
+.find input{flex:1;min-width:0;padding:.55rem .6rem;border:1.5px solid var(--fg);border-radius:10px;background:var(--screen);font:inherit;color:inherit}
+.find button{border:0;border-radius:10px;background:var(--fg);color:var(--screen);padding:0 .9rem;cursor:pointer}
+.hint{font-size:.75em;color:var(--fg-2);min-height:1.2em;margin:0}
+dialog{border:1.5px solid var(--fg);border-radius:14px;background:var(--screen);color:var(--fg);max-width:340px}
+dialog::backdrop{background:rgba(0,0,0,.4)}
+dialog button{margin-top:.8rem;border:1.5px solid var(--fg);background:none;border-radius:8px;padding:.35rem .8rem;cursor:pointer}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.sr{position:absolute;left:-9999px}
+</style>
+</head><body>
+<div class="note"><span>Prototype · sample data</span></div>
+<main class="screen" id="app" tabindex="-1" aria-live="polite"></main>
+<dialog id="doc"><p id="doc-t"></p><p style="font-size:.85em">Sample document — not included in this prototype.</p><form method="dialog"><button>Close 關閉</button></form></dialog>
+
+<script>
+/* ── sample data ───────────────────────────────────────────── */
+const LOC = {
+  nanjing: {zh:"南京", en:"Nanjing", factory:"02", floor:3, gate:"C", lift:"03",
+    walk:{en:"turn right and walk 60 metres", zh:"右轉步行 60 米"},
+    exits:[["杜牧","Du Mu"],["李煜","Li Houzhu"]], machines:["w372","r16","i09","c87"]},
+  guiyang: {zh:"貴陽", en:"Guiyang", factory:"02", floor:2, gate:"C", lift:"01",
+    walk:{en:"turn left and walk 40 metres", zh:"左轉步行 40 米"},
+    exits:[["王維","Wang Wei"],["韓愈","Han Yu"]], machines:["c02","c61","a238"]},
+  bangkok: {zh:"曼谷", en:"Bangkok", factory:"05", floor:7, gate:"B", lift:"03",
+    walk:{en:"turn left and walk 100 metres", zh:"左轉步行 100 米"},
+    exits:[["杜甫","Du Fu"],["白居易","Bai Juyi"]], machines:["w118","r41"]},
+  hefei:   {zh:"合肥", en:"Hefei", factory:"05", floor:4, gate:"B", lift:"02",
+    walk:{en:"go straight for 30 metres", zh:"直行 30 米"},
+    exits:[["李煜","Li Houzhu"],["杜甫","Du Fu"]], machines:["i22","a240"]}
+};
+const TYPE = {
+  weld:{zh:"焊接機器", en:"Welding", ops:[
+    ["穿戴適當的安全裝備：焊接面罩、手套和護目鏡。","Wear the right safety gear: welding helmet, gloves and safety glasses."],
+    ["檢查機器和電纜是否有損壞或缺陷。","Check the machine and cables for damage or defects."],
+    ["確保工作區域通風良好，附近沒有易燃物品。","Make sure the area is ventilated and clear of anything flammable."]]},
+  robot:{zh:"工業機器人", en:"Industrial robot", ops:[
+    ["確認安全圍欄已關閉，區域內無人員。","Confirm the safety fence is closed and nobody is inside."],
+    ["檢查緊急停止按鈕是否正常。","Test the emergency stop button."],
+    ["在手動模式下以低速運行測試程序。","Run the test programme at low speed in manual mode."]]},
+  inject:{zh:"注塑機", en:"Injection moulding", ops:[
+    ["檢查模具溫度和料筒溫度設定。","Check the mould and barrel temperature settings."],
+    ["確認安全門聯鎖正常。","Confirm the safety-gate interlock works."],
+    ["清除噴嘴附近的殘留物料。","Clear any residual material near the nozzle."]]},
+  conv:{zh:"傳送帶", en:"Conveyor belt", ops:[
+    ["確認皮帶上無異物。","Make sure the belt is clear of objects."],
+    ["檢查緊急拉繩開關。","Check the emergency pull-cord switch."],
+    ["啟動前發出警告信號。","Sound the warning signal before starting."]]},
+  line:{zh:"生產線機器", en:"Assembly line", ops:[
+    ["確認所有工位已就緒。","Confirm every workstation is ready."],
+    ["檢查工具和夾具是否完好。","Check tools and fixtures are in good condition."],
+    ["按照作業指導書開始生產。","Start production following the work instructions."]]}
+};
+const MAINT = [["切斷電源並上鎖掛牌。","Isolate the power and apply lock-out, tag-out."],
+  ["檢查磨損部件並記錄。","Inspect worn parts and record them."],
+  ["完成後在系統中登記維修記錄。","Log the maintenance in the system when finished."]];
+const RECV = [["核對送貨單與採購訂單。","Check the delivery note against the purchase order."],
+  ["檢查包裝是否完好。","Check the packaging is intact."],
+  ["記錄批號並存放到指定位置。","Record the batch number and store it in its assigned place."]];
+const M = {
+  w372:{t:"weld",n:"372",loc:"nanjing",insp:"2019/09/23",wear:2,fw:"32.43278.1243",sup:["張","Zhang"],shift:["王","Wang"],
+    update:{zh:"固件已更新：啟動順序已改變。使用前請閱讀。",en:"Firmware updated: the start-up sequence has changed. Read before use."}},
+  r16:{t:"robot",n:"16",loc:"nanjing",insp:"2020/01/14",wear:0,fw:"8.2.19",sup:["張","Zhang"],shift:["李","Li"]},
+  i09:{t:"inject",n:"09",loc:"nanjing",insp:"2017/02/20",wear:31,fw:"4.0.7",sup:["陳","Chen"],shift:["王","Wang"]},
+  c87:{t:"conv",n:"87",loc:"nanjing",insp:"2019/11/18",wear:4,sup:["陳","Chen"],shift:["李","Li"]},
+  c02:{t:"conv",n:"02",loc:"guiyang",insp:"2015/07/09",wear:77,sup:["黃","Huang"],shift:["周","Zhou"]},
+  c61:{t:"conv",n:"61",loc:"guiyang",insp:"2017/01/29",wear:11,sup:["黃","Huang"],shift:["周","Zhou"]},
+  a238:{t:"line",n:"238",loc:"guiyang",insp:"2020/04/15",wear:22,fw:"2.3.1",sup:["黃","Huang"],shift:["吳","Wu"]},
+  w118:{t:"weld",n:"118",loc:"bangkok",insp:"2019/12/02",wear:9,fw:"32.43278.1243",sup:["林","Lin"],shift:["鄭","Zheng"]},
+  r41:{t:"robot",n:"41",loc:"bangkok",insp:"2020/02/11",wear:3,fw:"8.2.19",sup:["林","Lin"],shift:["鄭","Zheng"]},
+  i22:{t:"inject",n:"22",loc:"hefei",insp:"2018/06/30",wear:18,fw:"4.0.7",sup:["趙","Zhao"],shift:["孫","Sun"]},
+  a240:{t:"line",n:"240",loc:"hefei",insp:"2019/08/08",wear:14,fw:"2.3.1",sup:["趙","Zhao"],shift:["孫","Sun"]}
+};
+
+/* ── helpers ───────────────────────────────────────────────── */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const mname = m => `${TYPE[m.t].zh} ${m.n} ${TYPE[m.t].en}`;
+const locline = l => `Factory 工廠 ${l.factory} · ${l.zh} ${l.en}`;
+const store = {get(k){try{return sessionStorage.getItem(k)}catch(e){return null}},set(k,v){try{sessionStorage.setItem(k,v)}catch(e){}}};
+function tags(m){
+  const status = m.wear >= 60 ? '<span class="tag bad">Service due 待維修</span>' : '<span class="tag ok">Good 良好</span>';
+  return `<span class="tag">Inspection ${m.insp}</span><span class="tag">${m.wear}% wear</span>${status}`;
+}
+function zoomBtns(){return `<span class="zoom"><button type="button" data-z="1" aria-label="Larger text 放大">+</button><button type="button" data-z="-1" aria-label="Smaller text 縮小">−</button></span>`}
+function go(h){location.hash = h}
+
+/* ── screens ───────────────────────────────────────────────── */
+function home(){
+  const ps = Object.entries(LOC).map(([k,l]) => `<button class="poster" data-go="#/loc/${k}" aria-label="${l.en} ${l.zh}, Factory ${l.factory}">
+    <span class="en">${l.en}</span><span class="zh">${l.zh}</span>
+    <span class="ex">← ${l.exits[0][0]} ${l.exits[0][1]}<br>→ ${l.exits[1][0]} ${l.exits[1][1]}</span></button>`).join("");
+  return `<h1>你在哪裡？<br>Where are you?</h1>
+  <p class="intro">Tap the poster nearest you — in the factory, you would scan it.</p>
+  <div class="posters">${ps}</div>
+  <h2>或查找機器 Or find a machine</h2>
+  <form class="find" id="find"><label class="sr" for="q">Machine number</label>
+    <input id="q" inputmode="numeric" placeholder="e.g. 372" autocomplete="off"><button>Find 查找</button></form>
+  <p class="hint" id="hint"></p>`;
+}
+function loc(k){
+  const l = LOC[k]; if(!l) return notFound();
+  const items = l.machines.map(id => { const m = M[id];
+    return `<li><button data-go="#/m/${id}"><span class="n">${esc(mname(m))}</span><span class="tags">${tags(m)}</span></button></li>`}).join("");
+  return `<div class="bar"><button class="back" data-go="#/">地點 Location</button><button class="link" data-go="#/dir/${k}">方向 Directions</button></div>
+  <div class="place"><small>Factory 工廠 ${l.factory} · Floor ${l.floor} 樓</small><b>${l.zh} ${l.en}</b></div>
+  <p class="sub">出口 Exits: ← ${l.exits[0][0]} ${l.exits[0][1]} · → ${l.exits[1][0]} ${l.exits[1][1]}</p>
+  <p class="sub" style="margin-top:.9rem">機器在這裡 Machines here</p><ul class="list">${items}</ul>`;
+}
+function machine(id, tab){
+  const m = M[id]; if(!m) return notFound();
+  const T = TYPE[m.t], l = LOC[m.loc];
+  const lists = {ops:["操作","Operations",T.ops], maint:["機器維修","Maintenance",MAINT], recv:["進貨程序","Receiving",RECV]};
+  tab = lists[tab] ? tab : "ops";
+  const [tz, te, steps] = lists[tab];
+  const tabBtns = Object.entries(lists).map(([k,[z,e]]) =>
+    `<button class="tab" role="tab" aria-selected="${k===tab}" data-go="#/m/${id}/${k}">${z} ${e}</button>`).join("");
+  const seen = store.get("ack-"+id);
+  const alert = m.update && !seen ? `<div class="alert" role="alert"><b>安全更新 Safety update</b>${m.update.zh}<br>${m.update.en}
+    <br><button type="button" data-ack="${id}">已閱讀 I have read this</button></div>` : "";
+  const docs = [["操作手冊","操作手冊"],["安全手冊","安全手冊"],["Operating manual","Operating manual"],["Safety manual","Safety manual"]]
+    .map(([t]) => `<button class="doc" data-doc="${esc(T.en+" "+m.n+" — "+t)}">PDF<br>${t}</button>`).join("");
+  return `<div class="bar"><button class="back" data-go="#/loc/${m.loc}">${esc(locline(l))}</button></div>
+  <h1>${T.zh} ${m.n}<br>${T.en}</h1>
+  ${alert}
+  <div class="tags">${tags(m)}</div>
+  ${m.fw ? `<p class="fw">安裝的固件 Firmware: ${m.fw}</p>` : `<p class="fw">無軟件 No software</p>`}
+  <div class="docs">${docs}</div>
+  <div class="people">
+    <div class="person"><span class="av" aria-hidden="true">${m.sup[0]}</span><span><small>導師 Supervisor</small><b>${m.sup[0]} ${m.sup[1]}</b></span></div>
+    <div class="person"><span class="av" aria-hidden="true">${m.shift[0]}</span><span><small>值班主任 Shift supervisor</small><b>${m.shift[0]} ${m.shift[1]}</b></span></div>
+  </div>
+  <h2>清單 Checklists</h2>
+  <div class="tabs" role="tablist">${tabBtns}</div>
+  <div class="box" role="tabpanel"><div class="hd"><b>${tz} ${T.zh} ${m.n}<br>${te} · ${T.en}</b>${zoomBtns()}</div>
+    <ol>${steps.map(s=>`<li>${s[1]}</li>`).join("")}</ol>
+    <ol>${steps.map(s=>`<li>${s[0]}</li>`).join("")}</ol></div>
+  <p style="margin-top:1rem"><button class="link" data-go="#/dir/${m.loc}">How to get here · 如何到達</button></p>`;
+}
+function route(fromK, toK){
+  const a = LOC[fromK], b = LOC[toK];
+  if(fromK === toK) return {en:["You are already here."], zh:["你已經在這裡。"]};
+  const en = [], zh = [];
+  if(a.factory === b.factory){
+    en.push(`Walk to lift ${b.lift}`); zh.push(`步行至 ${b.lift} 號電梯。`);
+  } else {
+    en.push(`Exit the building from gate ${a.gate}`); zh.push(`從 ${a.gate} 門離開建築物。`);
+    en.push(`Take a golf car to Factory ${b.factory}`); zh.push(`乘坐高爾夫車前往工廠 ${b.factory}。`);
+    en.push(`Enter Factory ${b.factory} from gate ${b.gate}`); zh.push(`從 ${b.gate} 門進入工廠 ${b.factory}。`);
+  }
+  en.push(`Take lift ${b.lift} to floor ${b.floor}`); zh.push(`乘坐 ${b.lift} 號電梯到達 ${b.floor} 樓。`);
+  en.push(`Then ${b.walk.en} until you see ${b.zh} ${b.en}`); zh.push(`${b.walk.zh}，直到看到「${b.zh}」。`);
+  return {en, zh};
+}
+function dir(fromK, toK){
+  if(!LOC[fromK]) return notFound();
+  const keys = Object.keys(LOC);
+  toK = LOC[toK] ? toK : keys.find(k => k !== fromK);
+  const opt = sel => keys.map(k => `<option value="${k}"${k===sel?" selected":""}>${esc(locline(LOC[k]))}</option>`).join("");
+  const r = route(fromK, toK);
+  return `<div class="bar"><button class="back" data-go="#/loc/${fromK}">${LOC[fromK].zh} ${LOC[fromK].en}</button></div>
+  <h1>方向<br>Directions</h1>
+  <label class="f" for="from">從 From</label><select id="from">${opt(fromK)}</select>
+  <label class="f" for="to">到 To</label><select id="to">${opt(toK)}</select>
+  <div class="box" style="margin-top:1rem"><div class="hd"><b>${esc(LOC[toK].zh)} ${esc(LOC[toK].en)}</b>${zoomBtns()}</div>
+    <ol>${r.en.map(s=>`<li>${esc(s)}</li>`).join("")}</ol>
+    <ol>${r.zh.map(s=>`<li>${esc(s)}</li>`).join("")}</ol></div>
+  <p class="intro" style="margin-top:.8rem">Lost? Show this screen to anyone — the steps are in both languages.</p>`;
+}
+function notFound(){return `<div class="bar"><button class="back" data-go="#/">Start</button></div><h1>Not found<br>找不到</h1>`}
+
+/* ── router ────────────────────────────────────────────────── */
+function render(){
+  const p = location.hash.replace(/^#\/?/, "").split("/");
+  const html = !p[0] ? home() : p[0]==="loc" ? loc(p[1]) : p[0]==="m" ? machine(p[1], p[2]) : p[0]==="dir" ? dir(p[1], p[2]) : notFound();
+  const app = $("#app"); app.innerHTML = html;
+  if(p[0] !== "m" || !p[2]) { window.scrollTo(0,0); app.focus({preventScroll:true}); }
+  const f = $("#find");
+  if(f) f.addEventListener("submit", e => { e.preventDefault();
+    const q = $("#q").value.trim().replace(/^0+(?=\d)/,"");
+    const hit = Object.entries(M).find(([,m]) => m.n.replace(/^0+(?=\d)/,"") === q);
+    if(hit) go("#/m/"+hit[0]); else $("#hint").textContent = q ? `No machine ${q} · 找不到機器 ${q}` : "";
+  });
+  const fr = $("#from"), to = $("#to");
+  if(fr) [fr,to].forEach(s => s.addEventListener("change", () => go(`#/dir/${fr.value}/${to.value}`)));
+}
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-go],[data-z],[data-doc],[data-ack]"); if(!t) return;
+  if(t.dataset.go) go(t.dataset.go);
+  else if(t.dataset.z){ const r = document.documentElement.style;
+    const z = Math.min(1.5, Math.max(.85, (parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--z"))||1) + .15*t.dataset.z));
+    r.setProperty("--z", z.toFixed(2)); }
+  else if(t.dataset.doc){ $("#doc-t").textContent = t.dataset.doc; $("#doc").showModal(); }
+  else if(t.dataset.ack){ store.set("ack-"+t.dataset.ack, "1"); render(); }
+});
+addEventListener("hashchange", render);
+render();
+</script>
+</body></html>

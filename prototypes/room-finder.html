@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta name="robots" content="noindex">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Castlegate University Room Finder · a teaching example</title>
+<style>
+  /* ============================ tokens ============================ */
+  :root {
+    /* surfaces */
+    --bg:#f4f5f7; --panel:#ffffff; --panel2:#f8f9fb; --line:#e4e7ec; --line2:#eef0f3; --line-strong:#8591a5;
+    /* text (all >= 7:1 on their surfaces) */
+    --tx:#101828; --tx2:#475467; --mut:#4a5465;
+    /* one accent */
+    --acc:#1f4fd8; --acc-soft:#e8eefc; --acc-tx:#1a3fae; --link:#1a3fae;
+    /* semantic, used sparingly */
+    --ok:#0d5c42; --ok-soft:#e3f5ec; --warn:#8b3706; --warn-soft:#fdf1e2; --info:#0b5382; --info-soft:#e5f1fa;
+    --hot:#ff6a00; --hot-tx:#8a3900;
+    /* shape: three radii, one shadow */
+    --r:12px; --r-sm:8px; --r-pill:999px;
+    --shadow:0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.08);
+    --shadow-lg:0 12px 32px -8px rgba(16,24,40,.22), 0 4px 12px -4px rgba(16,24,40,.12);
+    /* rhythm */
+    --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px;
+    --topH:65px;
+    color-scheme: light;
+  }
+  :root[data-theme="dark"] {
+    --bg:#0e1117; --panel:#161b24; --panel2:#1b2130; --line:#252d3b; --line2:#1f2633; --line-strong:#6e788a;
+    --tx:#e6e9ef; --tx2:#aab3c2; --mut:#a6acb8;
+    --acc:#6f93ff; --acc-soft:#1c2744; --acc-tx:#9db4ff; --link:#9db4ff;
+    --ok:#6ecfa0; --ok-soft:#14352a; --warn:#f3aa67; --warn-soft:#3a2a17; --info:#81c1eb; --info-soft:#15303f;
+    --hot:#ff8a3d; --hot-tx:#ffa366;
+    --shadow:0 1px 2px rgba(0,0,0,.4); --shadow-lg:0 16px 40px -8px rgba(0,0,0,.6);
+    color-scheme: dark;
+  }
+
+  /* ============================ base ============================ */
+  * { box-sizing:border-box; }
+  html, body { height:100%; }
+  body { margin:0; font:14px/1.5 Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background:var(--bg); color:var(--tx); -webkit-font-smoothing:antialiased; }
+  a { color:var(--link); text-decoration:none; }
+  a:hover { text-decoration:underline; }
+  button, input, select { font:inherit; color:inherit; }
+  :focus-visible { outline:3px solid var(--acc); outline-offset:2px; border-radius:var(--r-sm); }
+  ::placeholder { color:var(--mut); opacity:1; }
+  input, select { border-color:var(--line-strong); }
+  .num { font-variant-numeric:tabular-nums; }
+  .mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size:12.5px; }
+  .sr-only { position:absolute !important; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+  .skip { position:absolute; left:12px; top:-60px; z-index:100; background:var(--tx); color:var(--panel); padding:10px 14px; border-radius:var(--r-sm); font-weight:600; }
+  .skip:focus { top:12px; text-decoration:none; }
+  svg.i { width:15px; height:15px; flex:none; stroke:currentColor; fill:none; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; }
+  .eyebrow { font-size:11px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--mut); }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation:none !important; transition:none !important; scroll-behavior:auto !important; } }
+
+  /* shared control shapes ------------------------------------------------ */
+  .btn { min-height:44px; padding:0 14px; display:inline-flex; align-items:center; justify-content:center; gap:var(--s2); border:1px solid var(--line-strong); background:var(--panel); border-radius:var(--r-sm); cursor:pointer; color:var(--tx); font-size:13px; }
+  .btn:hover { border-color:var(--acc); color:var(--acc-tx); text-decoration:none; }
+  .ibtn { height:44px; min-width:44px; padding:0 10px; display:inline-flex; align-items:center; justify-content:center; gap:var(--s2); border:1px solid var(--line); background:var(--panel); border-radius:var(--r-sm); cursor:pointer; color:var(--tx2); }
+  .ibtn:hover { border-color:var(--line-strong); color:var(--tx); text-decoration:none; }
+  .ibtn.on { background:var(--acc-soft); border-color:transparent; color:var(--acc-tx); }
+  .ibtn svg { width:17px; height:17px; }
+  .field { width:100%; height:44px; padding:0 var(--s3); border:1px solid var(--line-strong); border-radius:var(--r-sm); background:var(--panel2); outline:none; }
+  .field:focus { border-color:var(--acc); background:var(--panel); }
+  .field:focus-visible { outline:3px solid var(--acc); outline-offset:1px; }   /* 2.4.7: a border tint alone was too faint to find */
+  .chip { font-size:12.5px; padding:8px 12px; min-height:36px; position:relative; border-radius:var(--r-pill); border:1px solid var(--line-strong); background:var(--panel); cursor:pointer; color:var(--tx2); line-height:1.2; display:inline-flex; align-items:center; gap:var(--s2); }
+  .chip::before { content:""; position:absolute; inset:-4px; }       /* 44px hit area */
+  .chip:hover { border-color:var(--tx2); color:var(--tx); }
+  .chip.on { background:var(--tx); color:var(--panel); border-color:var(--tx); }
+  .chip svg.i { width:14px; height:14px; }
+  .chips { display:flex; flex-wrap:wrap; gap:var(--s2); }
+  .seg { display:flex; border:1px solid var(--line-strong); border-radius:var(--r-sm); overflow:hidden; }
+  .seg.wrap { display:grid; grid-template-columns:repeat(4, 1fr); }
+  .seg.wrap button { border-left:1px solid var(--line); border-top:1px solid var(--line); }
+  .seg.wrap button:nth-child(4n+1) { border-left:0; }
+  .seg.wrap button:nth-child(-n+4) { border-top:0; }
+  .seg button { flex:1; height:44px; min-width:44px; border:0; background:var(--panel); cursor:pointer; color:var(--tx2); font-size:12.5px; line-height:1.1; padding:0 var(--s2); }
+  .seg button + button { border-left:1px solid var(--line); }
+  .seg button:hover { background:var(--panel2); color:var(--tx); }
+  .seg button.on { background:var(--tx); color:var(--panel); }
+  .seg small { display:block; font-size:9.5px; letter-spacing:.04em; color:var(--tx2); }
+  .seg button.on small { color:var(--panel); }
+
+  /* ============================ top bar ============================ */
+  .top { position:sticky; top:0; z-index:30; display:flex; align-items:center; gap:var(--s3); padding:var(--s3) var(--s5); min-height:var(--topH); background:var(--panel); border-bottom:1px solid var(--line); }
+  .brand { display:flex; align-items:center; gap:var(--s3); white-space:nowrap; color:var(--tx); }
+  .brand:hover { text-decoration:none; }
+  .brand .logo { width:32px; height:32px; border-radius:var(--r-sm); background:#1a3fae; display:grid; place-items:center; color:#fff; font-weight:800; font-size:13px; letter-spacing:-.02em; }
+  .brand h1 { margin:0; font-size:15px; font-weight:650; letter-spacing:-.01em; }
+  .brand small { display:block; font-size:11.5px; color:var(--mut); font-weight:400; }
+  .searchbox { flex:1; position:relative; max-width:640px; margin:0 auto; }
+  .searchbox input { padding-left:42px; padding-right:44px; }
+  .searchbox > svg { position:absolute; left:14px; top:14px; width:16px; height:16px; color:var(--mut); pointer-events:none; }
+  .searchbox kbd { position:absolute; right:12px; top:12px; font:11px ui-monospace, Menlo, monospace; color:var(--mut); border:1px solid var(--line-strong); border-radius:5px; padding:2px 6px; background:var(--panel); }
+  .top .right { display:flex; align-items:center; gap:var(--s2); }
+  .searchbox { min-width:0; }
+  @media (max-width:360px) { .top { gap:var(--s2); padding:var(--s2) var(--s3); } .top .right { gap:4px; } }   /* 1.4.10: 320px without sideways scroll */
+
+  /* ============================ shell ============================ */
+  .shell { display:grid; grid-template-columns:296px minmax(0,1fr); max-width:1560px; margin:0 auto; }
+  aside.side { position:sticky; top:var(--topH); height:calc(100vh - var(--topH)); overflow:hidden; display:flex; flex-direction:column; border-right:1px solid var(--line); background:var(--panel); }
+  .side .scroll { overflow-y:auto; flex:1; scrollbar-width:thin; }
+  .side section { padding:var(--s4) var(--s4) 0; }
+  .side section + section { border-top:1px solid var(--line2); margin-top:var(--s4); }
+  .side h2 { margin:0 0 var(--s3); display:flex; justify-content:space-between; align-items:center; gap:var(--s2); }
+  .side h2 .lnk { border:0; background:none; color:var(--link); cursor:pointer; font-size:11px; padding:4px; text-transform:none; letter-spacing:0; }
+  .side .grp { margin:0 0 var(--s4); }
+  .side .grp > .lab { display:block; font-size:12px; color:var(--tx2); margin-bottom:var(--s2); }
+  details.more { margin:0 0 var(--s4); }
+  details.more summary { cursor:pointer; font-size:12.5px; color:var(--tx2); padding:10px 0; list-style:none; display:flex; align-items:center; gap:var(--s2); min-height:44px; }
+  details.more summary::-webkit-details-marker { display:none; }
+  details.more summary::before { content:"›"; display:inline-block; transition:transform .12s; color:var(--mut); font-size:16px; }
+  details.more[open] summary::before { transform:rotate(90deg); }
+  details.more .chips { padding-bottom:var(--s2); }
+
+  /* type combobox */
+  .typebox { position:relative; display:flex; gap:var(--s2); }
+  .typebox input { flex:1; min-width:0; padding-right:40px; }
+  .typebox.has input { font-weight:600; color:var(--tx); background:var(--acc-soft); border-color:var(--acc); }
+  .typebox .clr { position:absolute; right:52px; top:0; width:40px; height:44px; border:0; background:none; color:var(--mut); cursor:pointer; border-radius:var(--r-sm); line-height:1; font-size:17px; }
+  .typebox .clr:hover { background:var(--line2); color:var(--tx); }
+  .typebox.has .clr { display:block; }
+  .typebox .clr { display:none; }
+  .typebox .info { width:44px; height:44px; flex:none; border:1px solid var(--line-strong); border-radius:var(--r-sm); background:var(--panel); color:var(--tx2); cursor:pointer; font:italic 700 15px Georgia, serif; }
+  .typebox .info:hover { border-color:var(--acc); color:var(--acc-tx); }
+  .sugg { position:absolute; left:0; right:52px; top:48px; z-index:20; background:var(--panel); border:1px solid var(--line-strong); border-radius:var(--r-sm); box-shadow:var(--shadow-lg); max-height:280px; overflow-y:auto; display:none; padding:var(--s1); }
+  .sugg.open { display:block; }
+  .sugg div { display:flex; justify-content:space-between; align-items:center; gap:var(--s3); padding:11px 10px; min-height:44px; border-radius:6px; cursor:pointer; font-size:13px; }
+  .sugg div:hover, .sugg div.hi { background:var(--acc-soft); color:var(--acc-tx); }
+  .sugg div span { color:var(--mut); flex:none; }
+  .sugg div span.l { color:inherit; flex:1; min-width:0; }
+  .sugg mark { background:none; color:inherit; font-weight:700; }
+  .sugg .hint { padding:6px 10px; min-height:0; font-size:11px; text-transform:uppercase; letter-spacing:.07em; color:var(--mut); cursor:default; }
+  .sugg .hint:hover { background:none; }
+
+  /* tree */
+  #tree { padding:0 var(--s2) var(--s4); }
+  .troot, .bhead, .flr { display:flex; align-items:center; gap:var(--s2); padding:6px var(--s2); min-height:44px; border-radius:var(--r-sm); cursor:pointer; user-select:none; }
+  .troot:hover, .bhead:hover, .flr:hover { background:var(--panel2); }
+  .troot { font-weight:600; }
+  .bhead .caret { width:14px; height:14px; display:inline-grid; place-items:center; color:var(--mut); opacity:.5; transition:transform .12s; flex:none; }
+  .bhead .caret svg { width:9px; height:9px; }
+  .bhead .caret.open { transform:rotate(90deg); opacity:.8; }
+  .bhead .code { font-size:10.5px; font-weight:700; color:var(--mut); min-width:34px; }
+  .bname { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:500; }
+  .cnt { font-size:11.5px; color:var(--mut); font-variant-numeric:tabular-nums; margin-left:auto; }
+  .sel { background:var(--acc-soft) !important; color:var(--acc-tx); }
+  .sel .cnt, .sel .code, .sel .caret { color:var(--acc-tx); }
+  .flrs { display:none; margin:0 0 var(--s1) 22px; border-left:1px solid var(--line); padding-left:var(--s1); }
+  .flrs.open { display:block; }
+  .flr { padding:4px var(--s2); font-size:13px; }
+  .flo { display:inline-block; min-width:30px; text-align:center; font-size:11px; font-weight:600; padding:2px 6px; border-radius:6px; background:var(--panel2); border:1px solid var(--line); color:var(--tx2); }
+  .flr .ics { display:flex; gap:5px; align-items:center; }
+  .flr .map { color:var(--link); opacity:.7; display:inline-flex; }
+  .flr .map svg { width:12px; height:12px; }
+  .ic { font-size:10px; font-weight:700; line-height:1; color:var(--tx); }   /* 1.4.6: 10px labels need the full ink */
+  .ic.a { color:var(--link); }
+  .side .foot { padding:var(--s3) var(--s4); border-top:1px solid var(--line); font-size:11px; color:var(--mut); display:flex; flex-wrap:wrap; gap:var(--s1) var(--s3); }
+  .side .foot svg { width:11px; height:11px; vertical-align:-1px; }
+
+  /* ============================ main ============================ */
+  main { min-width:0; padding:var(--s5); }
+
+  /* --- A–Z index (landing) --- */
+  .dash h2 { margin:0 0 var(--s1); font-size:28px; font-weight:650; letter-spacing:-.025em; }
+  .dash .lede { margin:0 0 var(--s5); color:var(--tx2); font-size:15px; max-width:64ch; }
+  .totals { display:flex; gap:var(--s6); flex-wrap:wrap; padding-bottom:var(--s5); border-bottom:1px solid var(--line); margin-bottom:var(--s4); }
+  .totals div b { display:block; font-size:24px; font-weight:650; letter-spacing:-.02em; font-variant-numeric:tabular-nums; }
+  .totals div span { font-size:11.5px; color:var(--mut); text-transform:uppercase; letter-spacing:.06em; }
+  .alpha { position:sticky; top:var(--topH); z-index:9; display:flex; flex-wrap:wrap; gap:var(--s1); padding:var(--s2) 0 var(--s4); background:var(--bg); }
+  .alpha button { min-width:34px; height:34px; padding:0 var(--s2); border:1px solid transparent; background:none; border-radius:6px; cursor:pointer; color:var(--link); font-size:13px; font-weight:600; position:relative; }
+  .alpha button::before { content:""; position:absolute; inset:-5px; }
+  .alpha button:hover { background:var(--acc-soft); }
+  .alpha button[disabled] { color:var(--mut); opacity:.45; cursor:default; }
+  .alpha button[disabled]:hover { background:none; }
+  .idxgrp { margin-bottom:var(--s5); }
+  .idxgrp h3 { margin:0 0 var(--s2); font-size:13px; font-weight:700; color:var(--tx2); border-bottom:1px solid var(--line); padding-bottom:var(--s2); }
+  .idx { list-style:none; margin:0; padding:0; }
+  .idxrow { display:grid; grid-template-columns:46px minmax(0,1fr) repeat(3, 88px) auto; align-items:center; gap:var(--s3); padding:var(--s3); min-height:56px; border-radius:var(--r-sm); color:var(--tx); }
+  .idxrow:hover { background:var(--panel); box-shadow:var(--shadow); text-decoration:none; }
+  .idxrow .code { font-size:11px; font-weight:700; color:var(--tx2); background:var(--panel2); border:1px solid var(--line); border-radius:6px; padding:3px 0; text-align:center; }
+  .idxrow .nm { min-width:0; }
+  .idxrow .nm b { display:block; font-size:15px; font-weight:600; letter-spacing:-.01em; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .idxrow .nm span { font-size:12.5px; color:var(--tx2); }
+  .idxrow .n { text-align:right; font-variant-numeric:tabular-nums; font-size:13px; color:var(--tx2); }
+  .idxrow .n b { display:block; color:var(--tx); font-weight:600; }
+  .idxrow .n em { font-style:normal; font-size:11px; color:var(--mut); }
+  .idxrow .marks { display:flex; gap:var(--s1); color:var(--mut); }
+  .idxrow .marks svg { width:15px; height:15px; }
+  .idxrow:hover .marks { color:var(--tx2); }
+  .dashfoot { margin-top:var(--s6); padding-top:var(--s4); border-top:1px solid var(--line); font-size:12.5px; color:var(--tx2); display:flex; gap:var(--s5); flex-wrap:wrap; }
+
+  /* --- context header (building / floor / results) --- */
+  .ctx { margin-bottom:var(--s4); }
+  .crumb { display:flex; align-items:center; gap:var(--s2); font-size:12.5px; color:var(--tx2); flex-wrap:wrap; margin-bottom:var(--s2); }
+  .crumb a { color:var(--tx2); cursor:pointer; display:inline-flex; align-items:center; min-height:24px; }   /* 2.5.8 */
+  .crumb a:hover { color:var(--acc-tx); }
+  .crumb .sep { color:var(--mut); }
+  .ctx h2 { margin:0 0 var(--s2); font-size:24px; font-weight:650; letter-spacing:-.025em; display:flex; align-items:center; gap:var(--s3); flex-wrap:wrap; }
+  .ctx h2 .code { font-size:11px; font-weight:700; color:var(--tx2); background:var(--panel2); border:1px solid var(--line); border-radius:6px; padding:3px 8px; }
+  .ctx .meta { color:var(--tx2); font-size:13px; display:flex; gap:var(--s2) var(--s4); flex-wrap:wrap; align-items:center; }
+  .ctx .meta a { display:inline-flex; align-items:center; min-height:24px; }   /* 2.5.8 */
+  .ctx .meta .dot { color:var(--mut); }
+  .figures { display:flex; gap:var(--s5); flex-wrap:wrap; margin-top:var(--s3); font-size:13px; color:var(--tx2); }
+  .figures b { color:var(--tx); font-weight:650; font-variant-numeric:tabular-nums; }
+  .floorbar { display:flex; align-items:center; gap:var(--s2); flex-wrap:wrap; margin-top:var(--s4); }
+  .floorbar .lab { font-size:12px; color:var(--tx2); margin-right:var(--s1); }
+  .floorbar button { min-width:44px; height:36px; padding:0 var(--s3); border:1px solid var(--line-strong); background:var(--panel); border-radius:var(--r-sm); cursor:pointer; font-size:13px; font-weight:600; color:var(--tx2); position:relative; }
+  .floorbar button::before { content:""; position:absolute; inset:-4px; }
+  .floorbar button:hover { border-color:var(--tx2); color:var(--tx); }
+  .floorbar button.on { background:var(--tx); color:var(--panel); border-color:var(--tx); }
+  .floorbar button .fdot { display:inline-block; width:5px; height:5px; border-radius:50%; background:var(--link); margin-left:5px; vertical-align:2px; }
+  .floorbar button.on .fdot { background:var(--panel); }
+
+  /* panels */
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:var(--r); padding:var(--s4); margin-bottom:var(--s4); }
+  .panel > h3 { margin:0 0 var(--s3); font-size:13px; font-weight:600; display:flex; align-items:center; gap:var(--s3); }
+  .panel > h3 .sp { flex:1; }
+  details.docs summary { cursor:pointer; font-size:13px; color:var(--tx2); min-height:44px; display:flex; align-items:center; gap:var(--s2); list-style:none; }
+  details.docs summary::-webkit-details-marker { display:none; }
+  details.docs summary::before { content:"›"; transition:transform .12s; color:var(--mut); font-size:16px; }
+  details.docs[open] summary::before { transform:rotate(90deg); }
+  .docs-list { display:flex; flex-wrap:wrap; gap:var(--s2); padding-top:var(--s3); }
+  .doc { display:inline-flex; align-items:center; gap:var(--s2); padding:10px var(--s3); min-height:44px; border:1px solid var(--line); border-radius:var(--r-sm); background:var(--panel2); font-size:12.5px; color:var(--tx); }
+  .doc:hover { border-color:var(--line-strong); text-decoration:none; }
+  .doc .k { font-size:10px; font-weight:700; padding:2px 5px; border-radius:4px; background:var(--panel); border:1px solid var(--line); color:var(--tx2); }
+  .doc .n { color:var(--mut); }
+  .doc svg.i { width:13px; height:13px; color:var(--link); }
+  .plans { display:grid; grid-template-columns:repeat(auto-fill, minmax(168px,1fr)); gap:var(--s3); }
+  .plan { border:1px solid var(--line); border-radius:var(--r-sm); overflow:hidden; background:var(--panel2); display:block; color:inherit; }
+  .plan:hover { border-color:var(--acc); text-decoration:none; }
+  .plan img { width:100%; aspect-ratio:4/3; object-fit:cover; object-position:top; display:block; background:#fff; }
+  .plan .cap { padding:var(--s2) var(--s3); font-size:12px; display:flex; justify-content:space-between; gap:var(--s2); }
+  .plan .cap b { font-weight:600; }
+  .amen { display:flex; flex-wrap:wrap; gap:var(--s2); margin-top:var(--s3); }
+  .amen span { font-size:12px; padding:5px 10px; border-radius:var(--r-pill); background:var(--panel2); border:1px solid var(--line); color:var(--tx2); }
+
+  /* interactive floor plan */
+  .fpwrap { position:relative; border:1px solid var(--line); border-radius:var(--r-sm); background:#fff; overflow:auto; max-height:72vh; scrollbar-width:thin; }
+  .fp { position:relative; width:100%; user-select:none; }
+  .fp img { display:block; width:100%; height:auto; }
+  .fp .hot { position:absolute; min-width:24px; min-height:24px; border-radius:3px; cursor:pointer; border:1.5px solid transparent; transition:background .1s, border-color .1s; }
+  .fp .hot.in { background:rgba(31,79,216,.16); border-color:rgba(31,79,216,.5); }
+  .fp .hot:hover { background:rgba(31,79,216,.35); border-color:rgba(31,79,216,.9); z-index:2; }
+  .fp .hot.cur { background:rgba(255,106,0,.28); border-color:var(--hot); box-shadow:0 0 0 4px rgba(255,106,0,.25); z-index:3; animation:pulse 1.6s ease-in-out infinite; }
+  .fp .hot.dim { opacity:.4; }
+  @keyframes pulse { 0%,100% { box-shadow:0 0 0 4px rgba(255,106,0,.25); } 50% { box-shadow:0 0 0 10px rgba(255,106,0,.06); } }
+  .fpwrap .expand { position:absolute; right:var(--s3); top:var(--s3); z-index:4; height:44px; padding:0 var(--s3); border:1px solid var(--line-strong); background:var(--panel); border-radius:var(--r-sm); cursor:pointer; font-size:12.5px; display:inline-flex; align-items:center; gap:var(--s2); box-shadow:var(--shadow); color:var(--tx); }
+  .fpwrap .expand:hover { border-color:var(--acc); color:var(--acc-tx); }
+  .fpwrap .expand svg { width:14px; height:14px; }
+  .fptip { position:fixed; z-index:70; pointer-events:none; background:var(--tx); color:var(--panel); font-size:12px; padding:var(--s2) 10px; border-radius:6px; box-shadow:var(--shadow-lg); display:none; max-width:260px; line-height:1.35; }
+  .fptip b { display:block; font-size:13px; }
+  .fptip.show { display:block; }
+  .fpnote { font-size:12px; color:var(--tx2); margin-top:var(--s2); display:flex; gap:var(--s3); flex-wrap:wrap; align-items:center; }
+  .fpnote i { display:inline-block; width:12px; height:12px; border-radius:3px; vertical-align:-2px; margin-right:var(--s1); }
+  .fpnote i.in { background:rgba(31,79,216,.25); border:1px solid rgba(31,79,216,.6); }
+  .fpnote i.cur { background:rgba(255,106,0,.35); border:1px solid var(--hot); }
+  .tools { display:inline-flex; gap:var(--s1); }
+  .tools button { border:1px solid var(--line-strong); background:var(--panel); border-radius:6px; padding:0 var(--s3); min-height:44px; min-width:44px; font-size:12px; cursor:pointer; color:var(--tx2); }
+  .tools button.on { background:var(--tx); color:var(--panel); border-color:var(--tx); }
+
+  /* --- results --- */
+  .toolbar { display:flex; align-items:center; gap:var(--s3); margin:0 0 var(--s3); flex-wrap:wrap; }
+  .toolbar .count { font-size:13px; color:var(--tx2); }
+  .toolbar .count b { color:var(--tx); font-weight:650; }
+  .toolbar .spacer { flex:1; }
+  .toolbar select { height:44px; border:1px solid var(--line-strong); border-radius:var(--r-sm); background:var(--panel); padding:0 var(--s2); }
+  .active { display:flex; gap:var(--s2); flex-wrap:wrap; }
+  .active .chip { font-size:12px; border-color:var(--line); }
+  .active .chip:hover { border-color:var(--warn); color:var(--warn); }
+  .bmatch { display:flex; align-items:center; gap:var(--s2); flex-wrap:wrap; font-size:13px; color:var(--tx2); background:var(--acc-soft); border-radius:var(--r-sm); padding:var(--s2) var(--s3); margin-bottom:var(--s3); }
+  .bmatch b { color:var(--acc-tx); }
+  .bmatch button { min-height:36px; padding:6px 12px; border:1px solid transparent; background:var(--panel); border-radius:var(--r-pill); cursor:pointer; font-size:12.5px; font-weight:600; color:var(--acc-tx); position:relative; }
+  .bmatch button::before { content:""; position:absolute; inset:-4px; }
+  .bmatch button:hover { border-color:var(--acc); }
+  .bmatch button small { font-weight:400; color:var(--tx2); margin-left:var(--s1); }
+
+  .tablewrap { background:var(--panel); border:1px solid var(--line); border-radius:var(--r); overflow:clip; }
+  table { width:100%; border-collapse:collapse; }
+  th, td { padding:10px var(--s3); text-align:left; border-bottom:1px solid var(--line2); vertical-align:middle; }
+  th { position:sticky; top:var(--topH); z-index:5; height:44px; background:var(--panel2); font-size:11.5px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:var(--tx2); cursor:pointer; user-select:none; white-space:nowrap; }
+  th:hover { color:var(--tx); }
+  th .arr { color:var(--link); margin-left:var(--s1); }
+  tbody tr { cursor:pointer; }
+  tbody tr:hover td { background:var(--panel2); }
+  tbody tr:last-child td { border-bottom:0; }
+  td.num, th.num { text-align:right; }
+  .sid { font-weight:600; white-space:nowrap; display:flex; align-items:center; gap:var(--s2); }
+  .sid .thumb { width:34px; height:34px; border-radius:6px; object-fit:cover; object-position:top; border:1px solid var(--line); background:#fff; flex:none; }
+  .sid .noimg { width:34px; height:34px; flex:none; }
+  .marks { display:inline-flex; gap:var(--s2); margin-left:var(--s2); font-size:11px; color:var(--mut); font-weight:500; font-variant-numeric:tabular-nums; }
+  .marks span { display:inline-flex; align-items:center; gap:3px; }
+  .marks svg { width:12px; height:12px; }
+  .tag { display:inline-block; font-size:11.5px; padding:3px 9px; border-radius:var(--r-pill); background:var(--panel2); border:1px solid var(--line); color:var(--tx2); white-space:nowrap; }
+  .tag.learn { background:var(--ok-soft); color:var(--ok); border-color:transparent; }
+  .sub { color:var(--mut); font-size:12px; }
+  .more { padding:var(--s4); text-align:center; color:var(--tx2); font-size:13px; }
+  .more button { margin-left:var(--s2); }
+  .empty { padding:64px var(--s5); text-align:center; color:var(--tx2); background:var(--panel); border:1px dashed var(--line-strong); border-radius:var(--r); }
+  .empty b { display:block; color:var(--tx); font-size:17px; margin-bottom:var(--s2); }
+
+  .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(228px,1fr)); gap:var(--s4); }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:var(--r); overflow:hidden; cursor:pointer; transition:border-color .12s, box-shadow .12s; display:flex; flex-direction:column; text-align:left; }
+  .card:hover { border-color:var(--line-strong); box-shadow:var(--shadow-lg); }
+  .card .img { aspect-ratio:4/3; background:var(--panel2); display:grid; place-items:center; overflow:hidden; border-bottom:1px solid var(--line2); position:relative; }
+  .card .img img { width:100%; height:100%; object-fit:cover; object-position:top; display:block; background:#fff; }
+  .card .img .ph { font-size:30px; font-weight:800; letter-spacing:-.04em; color:var(--tx2); opacity:.5; }
+  .card .body { padding:var(--s3); display:flex; flex-direction:column; gap:var(--s1); flex:1; }
+  .card .t { display:flex; justify-content:space-between; align-items:baseline; gap:var(--s2); }
+  .card .t b { font-size:15px; font-weight:650; letter-spacing:-.01em; }
+  .card .t .cap { font-size:13px; color:var(--tx2); white-space:nowrap; }
+  .card .t .cap b { font-size:14px; color:var(--tx); }
+  .card .k { color:var(--tx2); font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+  /* ============================ drawer ============================ */
+  .scrim { position:fixed; inset:0; background:rgba(16,24,40,.35); opacity:0; pointer-events:none; transition:opacity .18s; z-index:40; backdrop-filter:blur(2px); }
+  .scrim.open { opacity:1; pointer-events:auto; }
+  .drawer { position:fixed; top:0; right:0; height:100%; width:min(760px,100%); background:var(--panel); z-index:50; transform:translateX(102%); transition:transform .22s cubic-bezier(.2,.8,.2,1); box-shadow:var(--shadow-lg); display:flex; flex-direction:column; }
+  .drawer.open { transform:none; }
+  .dhead { display:flex; align-items:flex-start; gap:var(--s3); padding:var(--s4) var(--s5) var(--s3); border-bottom:1px solid var(--line); }
+  .dhead .titles { flex:1; min-width:0; }
+  .dhead h3 { margin:var(--s1) 0; font-size:24px; font-weight:700; letter-spacing:-.025em; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
+  .dhead h3 .kn { font-size:16px; font-weight:500; color:var(--tx2); }
+  .dhead .tags { display:flex; gap:var(--s2); flex-wrap:wrap; margin-top:var(--s1); }
+  .dhead .btns { display:flex; gap:var(--s2); }
+  .dbody { overflow-y:auto; padding:var(--s5); flex:1; scrollbar-width:thin; }
+  .herofig { border:1px solid var(--line); border-radius:var(--r); overflow:hidden; background:#fff; position:relative; }
+  .herofig img { width:100%; max-height:520px; object-fit:contain; display:block; background:#fff; cursor:zoom-in; }
+  .herofig .cap { position:absolute; left:0; right:0; bottom:0; padding:var(--s2) var(--s3); font-size:12px; color:#fff; background:rgba(16,24,40,.92); display:flex; justify-content:space-between; gap:var(--s2); }
+  .herofig .cap a { color:#fff; text-decoration:underline; }
+  .strip { display:flex; gap:var(--s2); margin-top:var(--s2); overflow-x:auto; padding-bottom:var(--s1); scrollbar-width:thin; }
+  .strip img { width:80px; height:80px; object-fit:cover; object-position:top; border-radius:6px; border:2px solid var(--line); cursor:pointer; background:#fff; flex:none; }
+  .strip img.on { border-color:var(--acc); }
+  .facts { display:grid; grid-template-columns:repeat(auto-fill, minmax(146px,1fr)); gap:var(--s3); margin-top:var(--s5); }
+  .fact { background:var(--panel2); border:1px solid var(--line2); border-radius:var(--r-sm); padding:10px var(--s3); min-width:0; }
+  .fact span { display:block; font-size:10.5px; text-transform:uppercase; letter-spacing:.07em; color:var(--mut); margin-bottom:2px; }
+  .fact b { font-weight:600; font-size:14px; display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .fact b.big { font-size:22px; letter-spacing:-.02em; }
+  .fact small { color:var(--tx2); font-size:11.5px; }
+  .dsec { margin-top:var(--s6); }
+  .dsec h4 { margin:0 0 var(--s3); font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:var(--mut); font-weight:600; display:flex; align-items:center; gap:var(--s2); }
+  .dsec h4 .sp { flex:1; height:1px; background:var(--line); }
+  .dsec h4 .tools button { min-height:36px; min-width:36px; font-size:11.5px; }
+  .laygrid { display:grid; grid-template-columns:repeat(auto-fill, minmax(148px,1fr)); gap:var(--s3); }
+  .layc { border:1px solid var(--line); border-radius:var(--r-sm); overflow:hidden; background:var(--panel2); }
+  .layc .im { aspect-ratio:1; background:#fff; display:grid; place-items:center; color:var(--mut); font-size:12px; overflow:hidden; cursor:zoom-in; }
+  .layc .im img { width:100%; height:100%; object-fit:cover; object-position:top; display:block; }
+  .layc .cap { padding:var(--s2) 10px; font-size:12.5px; display:flex; flex-direction:column; gap:var(--s1); }
+  .layc .cap b { font-weight:600; }
+  .layc .links { display:flex; gap:var(--s1); flex-wrap:wrap; }
+  .layc .links a { font-size:11px; font-weight:700; padding:12px; min-height:44px; display:inline-flex; align-items:center; border-radius:6px; border:1px solid var(--line); color:var(--tx2); background:var(--panel); }
+  .layc .links a:hover { border-color:var(--acc); color:var(--acc-tx); text-decoration:none; }
+  .kv { display:grid; grid-template-columns:max-content 1fr; gap:var(--s1) var(--s4); font-size:13px; }
+  .kv span { color:var(--tx2); }
+  .bars { display:flex; align-items:flex-end; gap:var(--s1); height:64px; margin-top:var(--s2); }
+  .bars div { flex:1; background:var(--acc); border-radius:3px 3px 0 0; opacity:.85; position:relative; min-height:2px; }
+  .bars div i { position:absolute; bottom:-18px; left:0; right:0; text-align:center; font-size:10px; color:var(--mut); font-style:normal; }
+  .utilhead { display:flex; gap:var(--s5); align-items:baseline; }
+  .utilhead b { font-size:26px; letter-spacing:-.02em; font-weight:700; }
+  .utilhead span { color:var(--tx2); font-size:12.5px; }
+  .nearby { display:flex; flex-wrap:wrap; gap:var(--s2); }
+  .nearby button { border:1px solid var(--line-strong); background:var(--panel2); border-radius:var(--r-sm); padding:var(--s2) var(--s3); min-height:44px; cursor:pointer; display:inline-flex; gap:var(--s2); align-items:center; font-size:12.5px; }
+  .nearby button:hover { border-color:var(--acc); color:var(--acc-tx); }
+  .nearby button small { color:var(--tx2); }
+  .linklist { display:flex; flex-direction:column; gap:var(--s1); }
+  .linklist a { display:flex; align-items:center; gap:var(--s2); padding:10px var(--s3); min-height:44px; border:1px solid var(--line2); border-radius:var(--r-sm); background:var(--panel2); font-size:13px; color:var(--tx); }
+  .linklist a:hover { border-color:var(--acc); text-decoration:none; }
+  .linklist a .k { font-size:10px; font-weight:700; color:var(--tx2); border:1px solid var(--line); border-radius:4px; padding:2px 5px; background:var(--panel); }
+  .linklist a .n { color:var(--mut); margin-left:auto; font-size:12px; }
+  .note { font-size:12px; color:var(--tx2); margin-top:var(--s2); }
+
+  /* ============================ dialogs ============================ */
+  .modal { position:fixed; inset:0; z-index:65; display:none; place-items:center; padding:var(--s5); background:rgba(16,24,40,.4); backdrop-filter:blur(2px); }
+  .modal.open { display:grid; }
+  .mbox { background:var(--panel); border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--shadow-lg); width:min(1080px,100%); max-height:calc(100vh - 48px); display:flex; flex-direction:column; }
+  .mhead { display:flex; align-items:center; gap:var(--s3); padding:var(--s3) var(--s4); border-bottom:1px solid var(--line); }
+  .mhead h3 { margin:0; font-size:16px; font-weight:650; flex:1; }
+  .mhead .sub { font-size:12.5px; color:var(--tx2); }
+  .mbody { overflow:auto; padding:var(--s4); scrollbar-width:thin; }
+  .tgrid { display:grid; grid-template-columns:repeat(auto-fill, minmax(206px,1fr)); gap:3px var(--s4); }
+  .tcell { display:flex; justify-content:space-between; align-items:center; gap:var(--s2); padding:var(--s2) 10px; min-height:44px; border-radius:6px; cursor:pointer; font-size:13px; border-left:3px solid transparent; }
+  .tcell:hover { background:var(--acc-soft); color:var(--acc-tx); }
+  .tcell.on { background:var(--tx); color:var(--panel); }
+  .tcell .n { color:var(--tx); font-variant-numeric:tabular-nums; font-size:12px; }
+  .tcell.on .n { color:var(--panel); opacity:.8; }
+  .tcell.learn { border-left-color:var(--ok); }
+  .mlegend { display:flex; gap:var(--s4); font-size:12px; color:var(--tx2); margin-bottom:var(--s3); flex-wrap:wrap; }
+  .mlegend i { display:inline-block; width:3px; height:12px; background:var(--ok); vertical-align:-2px; margin-right:var(--s2); border-radius:2px; }
+  .help { font-size:14px; line-height:1.6; max-width:70ch; }
+  .help h4 { margin:var(--s4) 0 var(--s2); font-size:12px; text-transform:uppercase; letter-spacing:.06em; color:var(--tx2); }
+  .help kbd { font:12px ui-monospace, Menlo, monospace; border:1px solid var(--line-strong); border-radius:5px; padding:2px 6px; background:var(--panel2); }
+  .help li { margin-bottom:var(--s1); }
+
+  /* full-screen plan viewer */
+  .pm { position:fixed; inset:0; z-index:75; background:var(--panel); display:none; flex-direction:column; }
+  .pm.open { display:flex; }
+  .pm .bar { display:flex; align-items:center; gap:var(--s3); padding:var(--s2) var(--s4); border-bottom:1px solid var(--line); flex-wrap:wrap; }
+  .pm .bar h3 { margin:0; font-size:15px; font-weight:650; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .pm .bar h3 small { color:var(--tx2); font-weight:500; margin-left:var(--s2); }
+  .pm .zoom { display:inline-flex; border:1px solid var(--line-strong); border-radius:var(--r-sm); overflow:hidden; }
+  .pm .zoom button { width:44px; height:44px; border:0; background:var(--panel); font-size:19px; cursor:pointer; color:var(--tx); line-height:1; }
+  .pm .zoom button:hover { background:var(--panel2); }
+  .pm .zoom button.txt { width:auto; padding:0 var(--s3); font-size:12.5px; }
+  .pm .zoom span { min-width:58px; display:grid; place-items:center; font-size:12.5px; color:var(--tx2); border-left:1px solid var(--line); border-right:1px solid var(--line); font-variant-numeric:tabular-nums; }
+  .pm .stage { flex:1; overflow:hidden; position:relative; background:#e6e8ec; cursor:grab; touch-action:none; }
+  :root[data-theme="dark"] .pm .stage { background:#0b0e14; }
+  .pm .stage.drag { cursor:grabbing; }
+  .pm .canvas { position:absolute; left:0; top:0; transform-origin:0 0; will-change:transform; }
+  .pm .canvas .fp { width:auto; }
+  .pm .canvas img { display:block; box-shadow:0 8px 30px rgba(0,0,0,.25); }
+  .pm .foot { padding:var(--s2) var(--s4); border-top:1px solid var(--line); font-size:12px; color:var(--tx2); display:flex; gap:var(--s4); flex-wrap:wrap; }
+  .pm .foot i { display:inline-block; width:12px; height:12px; border-radius:3px; vertical-align:-2px; margin-right:var(--s1); }
+  .pm .foot i.in { background:rgba(31,79,216,.25); border:1px solid rgba(31,79,216,.6); }
+  .pm .foot i.cur { background:rgba(255,106,0,.35); border:1px solid var(--hot); }
+
+  .lb { position:fixed; inset:0; z-index:80; background:rgba(8,10,16,.92); display:none; place-items:center; padding:var(--s5); }
+  .lb.open { display:grid; }
+  .lb img { max-width:100%; max-height:calc(100vh - 80px); object-fit:contain; background:#fff; border-radius:6px; }
+  .lb .x { position:absolute; top:var(--s4); right:var(--s4); width:44px; height:44px; color:#fff; font-size:28px; cursor:pointer; background:none; border:0; }
+  .lb .cap { position:absolute; bottom:var(--s4); left:0; right:0; text-align:center; color:#cbd2e0; font-size:13px; }
+  .lb .cap a { color:#fff; }
+
+  /* ============================ responsive ============================ */
+  #navToggle { display:none; }
+  @media (max-width: 1040px) {
+    .shell { grid-template-columns:1fr; }
+    aside.side { position:fixed; left:0; top:var(--topH); width:min(340px,90vw); z-index:35; transform:translateX(-102%); transition:transform .2s; box-shadow:var(--shadow-lg); }
+    aside.side.open { transform:none; }
+    #navToggle { display:inline-flex; }
+    main { padding:var(--s4) var(--s3) 48px; }
+    .brand small, .searchbox kbd { display:none; }
+    .tablewrap { overflow-x:auto; }
+    th { position:static; }
+    .alpha { position:static; }
+  }
+  @media (max-width: 780px) {
+    .idxrow { grid-template-columns:44px minmax(0,1fr) 78px auto; }
+    .idxrow .n.hide-sm { display:none; }
+  }
+  @media (max-width: 640px) {
+    .c-a { display:none; }
+    .brand h1 { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }   /* hidden on screen, still the page's h1 */
+    .dash h2 { font-size:22px; }
+    .totals { gap:var(--s4); }
+    .totals div b { font-size:19px; }
+    .ctx h2 { font-size:19px; }
+  }
+  @media print {
+    .top, aside.side, main, .scrim { display:none !important; }
+    .drawer { position:static; width:auto; transform:none; box-shadow:none; height:auto; }
+    .dbody { overflow:visible; }
+    .dhead .btns { display:none; }
+    body { background:#fff; }
+  }
+</style>
+</head>
+<body>
+<div role="note" style="background:#FBEFDF;color:#5C3305;border-bottom:1px solid #D9B98C;padding:8px 16px;font:600 13px/1.4 system-ui,sans-serif;text-align:center">A made-up university for teaching. No real buildings, rooms or people.</div>
+<a class="skip" href="#results">Skip to results</a>
+
+<header class="top">
+  <button class="ibtn" id="navToggle" title="Filters and buildings" aria-label="Show or hide filters and buildings" aria-expanded="false" aria-controls="side">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+  </button>
+  <a class="brand" href="#" id="home" aria-label="Castlegate University Room Finder, back to the building index">
+    <span class="logo" aria-hidden="true">RF</span>
+    <span><h1>Castlegate Room Finder</h1><small id="sub">loading…</small></span>
+  </a>
+  <div class="searchbox">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <label for="q" class="sr-only">Search rooms and buildings by number, name, code or department</label>
+    <input class="field" id="q" type="search" placeholder="Search rooms and buildings…" autocomplete="off" spellcheck="false">
+    <kbd aria-hidden="true">/</kbd>
+  </div>
+  <div class="right">
+    <button class="ibtn" id="helpBtn" title="Help" aria-label="Help and keyboard shortcuts" aria-haspopup="dialog">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01"/></svg>
+    </button>
+    <button class="ibtn" id="themeBtn" title="Toggle dark mode" aria-label="Toggle dark mode" aria-pressed="false">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+
+<div class="shell">
+  <aside class="side" id="side" aria-label="Filters and buildings">
+    <div class="scroll">
+      <section>
+        <h2 class="eyebrow">Filters <button class="lnk" id="clearAll">Clear all</button></h2>
+        <div class="grp"><div class="chips" id="quick" role="group" aria-label="Purpose"></div></div>
+        <div class="grp"><span class="lab" id="fnLab">Function</span><div class="chips" id="funcs" role="group" aria-labelledby="fnLab"></div></div>
+        <div class="grp"><span class="lab" id="szLab">Seats</span><div class="seg wrap" id="sizeSeg" role="group" aria-labelledby="szLab"></div></div>
+        <div class="grp"><span class="lab" id="tyLab">Room type</span>
+          <div class="typebox" id="typeBox">
+            <label for="typ" class="sr-only">Room type</label>
+            <input class="field" id="typ" type="text" placeholder="Type to search…" autocomplete="off" spellcheck="false" role="combobox" aria-expanded="false" aria-controls="sugg" aria-autocomplete="list" aria-haspopup="listbox">
+            <button class="clr" id="typClr" title="Clear type" aria-label="Clear room type">×</button>
+            <button class="info" id="typInfo" title="All room types" aria-label="Browse all room types" aria-haspopup="dialog"><span aria-hidden="true">i</span></button>
+            <div class="sugg" id="sugg" role="listbox" aria-label="Room type suggestions"></div>
+          </div>
+        </div>
+        <details class="more" id="dataMore">
+          <summary id="dataSummary">Data available</summary>
+          <div class="chips" id="dataChips" role="group" aria-labelledby="dataSummary"></div>
+        </details>
+      </section>
+      <section>
+        <h2 class="eyebrow">Buildings</h2>
+        <div class="grp"><label for="treeQ" class="sr-only">Filter buildings</label><input class="field" id="treeQ" type="search" placeholder="Filter buildings…" autocomplete="off"></div>
+      </section>
+      <div id="tree" role="tree" aria-label="Buildings and floors"></div>
+    </div>
+    <div class="foot" id="legend" role="group" aria-label="Icon legend"></div>
+  </aside>
+
+  <main>
+    <div id="ctx"></div>
+    <div id="results" tabindex="-1"></div>
+    <div class="more" id="more"></div>
+  </main>
+</div>
+
+<div class="scrim" id="scrim"></div>
+<div class="drawer" id="drawer" role="dialog" aria-modal="true" aria-label="Room profile"></div>
+<div class="fptip" id="fptip" role="tooltip" aria-hidden="true"></div>
+
+<div class="pm" id="pm" role="dialog" aria-modal="true" aria-labelledby="pmTitle">
+  <div class="bar"><h3 id="pmTitle"></h3>
+    <div class="zoom"><button id="pmOut" title="Zoom out (−)" aria-label="Zoom out">−</button><span id="pmPct" role="status" aria-live="polite" aria-label="Zoom level">100%</span><button id="pmIn" title="Zoom in (+)" aria-label="Zoom in">+</button><button class="txt" id="pmFit" title="Fit to screen (0)">Fit</button><button class="txt" id="pmRoom" title="Centre on this room">Room</button></div>
+    <a class="ibtn" id="pmSrc" target="_blank" title="Open the source drawing" aria-label="Open the source Illustrator drawing">.ai</a>
+    <button class="ibtn" id="pmClose" title="Close (Esc)" aria-label="Close floor plan viewer">✕</button></div>
+  <div class="stage" id="pmStage" role="region" aria-label="Floor plan, drag to pan"><div class="canvas" id="pmCanvas"></div></div>
+  <div class="foot" id="pmFoot"></div>
+</div>
+
+<div class="modal" id="typeModal" role="dialog" aria-modal="true" aria-labelledby="typeModalTitle"><div class="mbox">
+  <div class="mhead"><h3 id="typeModalTitle">Room types</h3><span class="sub" id="typeModalSub"></span><button class="ibtn" id="typeModalClose" title="Close" aria-label="Close room types">✕</button></div>
+  <div class="mbody"><div class="mlegend"><span><i aria-hidden="true"></i>Learning space types are marked with a green bar and the word “learning”</span><span>Choose a type to filter by it.</span></div><div class="tgrid" id="tgrid"></div></div>
+</div></div>
+
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Enlarged image"><button class="x" aria-label="Close enlarged image">×</button><img alt=""><div class="cap"></div></div>
+
+<div class="modal" id="helpModal" role="dialog" aria-modal="true" aria-labelledby="helpTitle"><div class="mbox" style="width:min(720px,100%)">
+  <div class="mhead"><h3 id="helpTitle">Help</h3><button class="ibtn" id="helpClose" title="Close" aria-label="Close help">✕</button></div>
+  <div class="mbody help">
+    <p>The Room Finder lists every room at Castlegate University, a university that does not exist, made up for teaching. The opening screen is an A to Z index of the estate's buildings; choose one to see its floors, plans and rooms.</p>
+    <h4>Searching</h4>
+    <p>Type a room number (<b>GW 1.04</b>), a building code (<b>GW</b>), a room name, a timetable code or a department. Results are ranked by how well they match: an exact building code or room number comes first.</p>
+    <p>Adding a space finishes a word: <b>GW&nbsp;</b> with a trailing space matches only whole words.</p>
+    <h4>Keyboard</h4>
+    <ul><li><kbd>/</kbd> focus the search box</li><li><kbd>Tab</kbd> move between controls; <kbd>Enter</kbd> or <kbd>Space</kbd> activates rooms, buildings and floors</li><li><kbd>Esc</kbd> closes a profile, viewer or dialog</li><li>In the floor plan viewer: <kbd>+</kbd> and <kbd>−</kbd> zoom, <kbd>0</kbd> fits the plan to the screen</li></ul>
+    <h4>Abbreviations</h4>
+    <ul><li><b>SM</b> Space Management, the university's own room figures</li><li><b>TT</b> timetable</li><li><b>EMS</b> Estates Management Statistics space code</li><li><b>FM</b> Facilities Management</li></ul>
+    <h4>Display</h4>
+    <p>The moon button switches between light and dark colour schemes. Text can be enlarged with your browser's zoom, and the layout adapts down to phone width. Animation is switched off when your system asks for reduced motion.</p>
+    <p class="note">Every building, room and address here is invented. The addresses end in .example, which cannot reach anyone.</p>
+  </div></div></div>
+
+<script>
+const D = {"built":"2026-09-28","b":[{"n":"ALDER HALL","code":"AH","prop":"","fac":"Business and Law","plans":{},"maps":{},"elev":[],"decks":[],"layouts":[],"contact":{}},{"n":"BRAMLEY LIBRARY","code":"BL","prop":"","fac":"","plans":{},"maps":{},"elev":[],"decks":[],"layouts":[],"contact":{}},{"n":"COTTON EXCHANGE","code":"CE","prop":"","fac":"Science and Engineering","plans":{},"maps":{},"elev":[],"decks":[],"layouts":[],"contact":{}},{"n":"DUNMORE BUILDING","code":"DB","prop":"","fac":"Health and Education","plans":{},"maps":{},"elev":[],"decks":[],"layouts":[],"contact":{}},{"n":"GLASSWORKS","code":"GW","prop":"","fac":"Arts and Humanities","plans":{},"maps":{},"elev":[],"decks":[],"layouts":[],"contact":{"fm":"facilities@castlegate.example","reception":"4100"}},{"n":"HARBOUR STUDIOS","code":"HS","prop":"","fac":"Arts and Humanities","plans":{},"maps":{},"elev":[],"decks":[],"layouts":[],"contact":{}},{"n":"QUAYSIDE SPORTS CENTRE","code":"QS","prop":"","fac":"","plans":{},"maps":{},"elev":[],"decks":[],"layouts":[],"contact":{}}],"u":["Reception","Café","Lecture Theatre","Teaching Room","Study Zone","Toilet","Circulation","Computer Room","Group Room","Store","Studio","Edit Suite","Recording Studio","Workshop","Technicians Office","Academic Office","Meeting Room","PG Office","Research Office","Kitchen"],"t":["Reception","Café","Lecture Theatre","Teaching Room","Study Zone","Toilet","Circulation","Computer Room","Group Room","Store","Studio","Edit Suite","Recording Studio","Workshop","Technicians Office","Academic Office","Meeting Room","PG Office","Research Office","Kitchen"],"c":["04. Office","07. Catering","01. Learning","03. Open Access","11. Services","10. Circulation","05. Store"],"e":["Support - Offices","Balance","Teaching - Not Offices"],"d":["Facilities","Catering","Timetabled Teaching","Library Services","Design","Media","Technical Services"],"fac":["Arts and Humanities"],"cov":["Carpet","Vinyl"],"fdep":["Facilities","Catering","Timetabled Teaching","Library Services","Design","Media","Technical Services"],"rooms":[[4,"GF","G.01","Reception",0,0,0,0,0,38.0,0,"",0,2700,0,0,0,"CG-GW-001","",100,0],[4,"GF","G.02","Café",1,1,1,1,1,150.0,60,"",0,2700,1,0,0,"CG-GW-002","",100,1],[4,"GF","G.03","Lecture Theatre 1",2,2,2,2,2,180.0,120,"GMG03",120,2700,0,1,0,"CG-GW-003","",100,2],[4,"GF","G.04","Seminar Room",3,3,2,2,2,55.0,30,"GMG04",30,2700,0,1,0,"CG-GW-004","",100,2],[4,"GF","G.05","Study Zone",4,4,3,1,3,90.0,40,"",0,2700,0,0,0,"CG-GW-005","",100,3],[4,"GF","G.06","Accessible WC",5,5,4,1,0,6.0,0,"",0,2700,1,0,0,"CG-GW-006","",100,0],[4,"GF","G.07","Toilets",5,5,4,1,0,22.0,0,"",0,2700,1,0,0,"CG-GW-007","",100,0],[4,"GF","G.CORR.01","Entrance hall",6,6,5,1,0,120.0,0,"",0,2700,0,0,0,"CG-GW-008","",100,0],[4,"1","1.01","Seminar Room",3,3,2,2,2,60.0,40,"GM101",40,2700,0,1,0,"CG-GW-009","",100,2],[4,"1","1.02","Seminar Room",3,3,2,2,2,61.0,40,"GM102",36,2700,0,1,0,"CG-GW-010","",100,2],[4,"1","1.03","Teaching Room",3,3,2,2,2,52.0,30,"GM103",30,2700,0,1,0,"CG-GW-011","",100,2],[4,"1","1.04","Computer Room",7,7,2,2,2,95.0,40,"GM104",40,2700,0,1,0,"CG-GW-012","",100,2],[4,"1","1.05","Computer Room",7,7,2,2,2,60.0,24,"GM105",24,2700,0,1,0,"CG-GW-013","",100,2],[4,"1","1.06","Group Room",8,8,3,1,3,18.0,8,"",0,2700,0,0,0,"CG-GW-014","",100,3],[4,"1","1.07","Store",9,9,6,1,0,12.0,0,"",0,2700,0,0,0,"CG-GW-015","",100,0],[4,"1","1.WC.01","Toilets",5,5,4,1,0,20.0,0,"",0,2700,1,0,0,"CG-GW-016","",100,0],[4,"2","2.01","Design Studio",10,10,2,2,4,120.0,30,"GM201",30,2700,0,1,0,"CG-GW-017","",100,4],[4,"2","2.02","Edit Suite",11,11,2,2,5,25.0,6,"GM202",6,2700,0,1,0,"CG-GW-018","",100,5],[4,"2","2.03","Recording Studio",12,12,2,2,5,30.0,5,"GM203",5,2700,0,1,0,"CG-GW-019","",100,5],[4,"2","2.04","Photography Studio",10,10,2,2,5,80.0,15,"GM204",15,2700,0,1,0,"CG-GW-020","",100,5],[4,"2","2.05","Workshop",13,13,2,2,4,90.0,16,"GM205",16,2700,1,1,0,"CG-GW-021","",100,4],[4,"2","2.06","Technicians",14,14,0,0,6,24.0,4,"",0,2700,0,0,0,"CG-GW-022","",100,6],[4,"3","3.01","Academic Office",15,15,0,0,4,40.0,6,"",0,2700,0,0,0,"CG-GW-023","",100,4],[4,"3","3.02","Academic Office",15,15,0,0,5,40.0,6,"",0,2700,0,0,0,"CG-GW-024","",100,5],[4,"3","3.03","Meeting Room",16,16,0,0,4,30.0,12,"",0,2700,0,0,0,"CG-GW-025","",100,4],[4,"3","3.04","Postgraduate Office",17,17,0,0,5,45.0,10,"",0,2700,0,0,0,"CG-GW-026","",100,5],[4,"3","3.05","Research Office",18,18,0,0,4,22.0,4,"",0,2700,0,0,0,"CG-GW-027","",100,4],[4,"3","3.06","Staff Kitchen",19,19,4,1,0,14.0,0,"",0,2700,1,0,0,"CG-GW-028","",100,0]],"lay":{},"prof":{},"util":{},"amen":{"GLASSWORKS|GF":["wc","awc","lift","alift","hearing"],"GLASSWORKS|1":["wc","lift"],"GLASSWORKS|2":["wc","lift"],"GLASSWORKS|3":["awc","lift"]},"site":[],"other":[]};
+
+/* ===================== helpers ===================== */
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rx = s => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const title = s => String(s).toLowerCase().replace(/(^|[\s('\-/])([a-z])/g, (m,a,b) => a + b.toUpperCase()).replace(/\b(\d+)([a-z])\b/g,(m,a,b)=>a+b.toUpperCase());
+const href = p => encodeURI(p).replace(/#/g,'%23').replace(/\?/g,'%3F');
+const nf = n => (n || 0).toLocaleString();
+const FLO = {B3:0,B2:1,B1:2,LG:3,GF:4,MG:5,GM:5,M:5};
+const fRank = f => (f in FLO) ? FLO[f] : (/^\d+$/.test(f) ? 10 + +f : (f === 'R' ? 99 : 60));
+
+const ICONS = {
+  teach:   '<svg class="i" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M12 16v4M8 20h8M7 9h6M7 12h10"/></svg>',
+  pc:      '<svg class="i" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg>',
+  lecture: '<svg class="i" viewBox="0 0 24 24"><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7M2 15c0-3 2-5.5 5-6.5M22 15c0-3-2-5.5-5-6.5"/><circle cx="12" cy="7" r="3"/></svg>',
+  seminar: '<svg class="i" viewBox="0 0 24 24"><path d="M4 5h16v10H9l-5 4z"/><path d="M8 9h8M8 12h5"/></svg>',
+  studio:  '<svg class="i" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18c1.5 0 2-1 1.5-2s.5-2 2-2c2.5 0 3.5-1.5 3.5-4a10 10 0 0 0-7-10z"/><circle cx="7.5" cy="10.5" r="1"/><circle cx="12" cy="7.5" r="1"/><circle cx="16.5" cy="10" r="1"/></svg>',
+  lab:     '<svg class="i" viewBox="0 0 24 24"><path d="M9 3h6M10 3v6L4.5 19a1.5 1.5 0 0 0 1.3 2h12.4a1.5 1.5 0 0 0 1.3-2L14 9V3"/><path d="M7 15h10"/></svg>',
+  workshop:'<svg class="i" viewBox="0 0 24 24"><path d="M14.7 6.3a4 4 0 0 0 5 5L9 22l-3-3L16.7 8.3a4 4 0 0 0-2-2z"/><path d="M3 3l4 4"/></svg>',
+  study:   '<svg class="i" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M4 18.5A2.5 2.5 0 0 1 6.5 16H20M8 7h8M8 10h6"/></svg>',
+  office:  '<svg class="i" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/></svg>',
+  map:     '<svg class="i" viewBox="0 0 24 24"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z"/><path d="M9 4v14M15 6v14"/></svg>',
+  deck:    '<svg class="i" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M12 16v4M8 20h8"/></svg>',
+  chart:   '<svg class="i" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
+  file:    '<svg class="i" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>',
+};
+
+/* ===================== data prep ===================== */
+const bIdx = {}; D.b.forEach((b,i) => bIdx[b.n] = i);
+const R = D.rooms.map((r, i) => ({
+  i, bi: r[0], b: D.b[r[0]].n, code: D.b[r[0]].code, f: r[1] || '–', ref: r[2], k: r[3],
+  u: D.u[r[4]], t: D.t[r[5]], cl: D.c[r[6]], em: D.e[r[7]], dep: D.d[r[8]], a: r[9], c: r[10],
+  tt: r[11], ttc: r[12], ceil: r[13], cov: D.cov[r[14]], tim: r[15], fac: D.fac[r[16]], sid: r[17], ems: r[18], cln: r[19], fdep: D.fdep[r[20]],
+}));
+const MAPREF = {};
+D.b.forEach((B, bi) => Object.entries(B.maps || {}).forEach(([fl, M]) => Object.keys(M.rooms).forEach(ref => { MAPREF[bi + '|' + ref] = [fl, M]; })));
+R.forEach(r => {
+  r.key = r.bi + '|' + r.ref;
+  r.label = (r.code || r.b.slice(0,3)) + ' ' + r.ref;
+  r.lay = D.lay[r.key] || [];
+  r.prof = D.prof[r.key] || [];
+  r.util = D.util[r.key];
+  r.map = MAPREF[r.key];
+  r.learn = /^01\./.test(r.cl);
+  const card = r.prof.find(p => p.kind === 'card'), reset = r.prof.find(p => p.kind === 'reset');
+  r.hero = (card && card.img) || (reset && reset.img) || (r.lay.find(l => l.t || l.k === 'jpg' || l.k === 'png' || l.k === 'svg') || {}).t
+        || (r.lay.find(l => l.k === 'jpg' || l.k === 'png' || l.k === 'svg') || {}).f || '';
+  r.style = (card && card.style) || (reset && reset.style) || '';
+  // the printable "Reset" card repeats the deck drawing: show it once, keep the file as a link
+  r.resetCards = (reset && reset.img) ? r.lay.filter(l => l.s === 'Reset layout') : [];
+  r.layShown = r.resetCards.length ? r.lay.filter(l => l.s !== 'Reset layout') : r.lay;
+  r.nDocs = r.layShown.length + r.prof.length;
+  // lowercase search fields
+  r._code = (r.code || '').toLowerCase(); r._label = r.label.toLowerCase(); r._ref = String(r.ref).toLowerCase();
+  r._tt = (r.tt || '').toLowerCase(); r._b = r.b.toLowerCase(); r._k = (r.k || '').toLowerCase();
+  r._u = (r.u || '').toLowerCase(); r._t = (r.t || '').toLowerCase(); r._dep = (r.dep || '').toLowerCase();
+  r._nm = (card && card.name ? card.name : '').toLowerCase();
+});
+const byKey = {}; R.forEach(r => { byKey[r.key] = r; byKey[r.label] = r; });
+
+/* per-building roll-up, used by the A–Z index */
+const BSTATS = D.b.map((B, i) => ({ i, n: B.n, code: B.code || '', name: title(B.n), fac: B.fac || '', prop: B.prop || '',
+  rooms: 0, learn: 0, seats: 0, area: 0, floors: new Set(), maps: Object.keys(B.maps || {}).length, decks: (B.decks || []).length, util: 0, docs: 0 }));
+R.forEach(r => {
+  const s = BSTATS[r.bi];
+  s.rooms++; s.seats += r.c || 0; s.area += r.a || 0; s.floors.add(r.f);
+  if (r.learn) s.learn++;
+  if (r.util) s.util++;
+  s.docs += r.nDocs;
+});
+BSTATS.forEach(s => { s.nFloors = s.floors.size; s._n = s.name.toLowerCase(); s._c = s.code.toLowerCase();
+  s.letter = /^[A-Z]/.test(s.name[0] || '') ? s.name[0].toUpperCase() : '#'; });
+const BY_NAME = BSTATS.slice().sort((a, b) => (a.letter === '#' ? -1 : 0) - (b.letter === '#' ? -1 : 0) || a.name.localeCompare(b.name));
+const LETTERS = ['#', ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')];
+
+const FUNCS = [
+  ['Teaching room',    ['Teaching Room','Base Room','Training Room'], 'teach'],
+  ['Computer lab',     ['Computer Room','Computer Drop-In'], 'pc'],
+  ['Lecture theatre',  ['Lecture Theatre'], 'lecture'],
+  ['Seminar / meeting',['Meeting Room','Group Room','Interview Room','Consulting Room','1:1 Room'], 'seminar'],
+  ['Studio',           ['Studio','Performance Studio','Recording Studio','Technical Studio','Dark Room','Edit Suite','Music Practice Room'], 'studio'],
+  ['Laboratory',       ['Laboratory','Language Lab','Prep Room'], 'lab'],
+  ['Workshop',         ['Workshop','Technical Workshop'], 'workshop'],
+  ['Study space',      ['Open Study','Study Zone','Group Booth','Library','Breakout Seating'], 'study'],
+  ['Office',           ['Academic Office','Support Office','Research Office','PG Office','Office (1P)','Office (6P)','Technicians Office','Academic Support Office'], 'office'],
+];
+R.forEach(r => r.g = FUNCS.map((f,i) => f[1].includes(r.u) ? i : -1).filter(i => i >= 0));
+
+/* purpose chips stay visible; data-availability chips live behind the disclosure */
+const QUICK = [
+  ['teach', 'Teaching spaces', r => r.learn, 0],
+  ['tt',    'Timetabled',      r => r.tim === 1, 0],
+  ['lay',   'Layout drawings', r => r.layShown.length > 0, 1],
+  ['prof',  'Room profile',    r => r.prof.length > 0, 1],
+  ['map',   'On a floor plan', r => !!r.map, 1],
+  ['util',  'Utilisation survey', r => !!r.util, 1],
+  ['spec',  'Specialist',      r => r.em === 'Specialist', 1],
+];
+const SIZES = [0, 5, 10, 20, 30, 50, 100];
+const IC = { wc:['n','WC','Toilets'], awc:['a','♿','Accessible toilet'], lift:['n','⇵','Lift'], alift:['a','♿⇵','Accessible / platform lift'], hearing:['a','T','Hearing loop'], cp:['a','CP','Changing Places'] };
+const PLAN_ORDER = ['Access','Bookable','Emergency Evacuation','Emergency Action','Emergency Heat Map','Conference','Delivery Access'];
+const TYPE_COUNT = {}; R.forEach(r => { if (r.u) TYPE_COUNT[r.u] = (TYPE_COUNT[r.u] || 0) + 1; });
+const TYPE_LEARN = {}; R.forEach(r => { if (r.u && r.learn) TYPE_LEARN[r.u] = true; });
+const TYPES = Object.keys(TYPE_COUNT).sort((a,b) => a.localeCompare(b));
+
+/* ===================== state ===================== */
+const S = { q:'', typ:'', cap:0, funcs:new Set(), quick:new Set(), b:'', f:'', view:'table', sort:'b', dir:1, userSorted:false, lim:200, room:null, fpzoom:1 };
+const expanded = {};
+let base = [], view = [], bMatches = [];
+
+const filtersOff = () => !S.q && !S.typ && !S.cap && !S.funcs.size && !S.quick.size;
+const isIndex = () => !S.b && filtersOff();
+
+function readHash() {
+  const p = new URLSearchParams(decodeURIComponent(location.hash.slice(1)));
+  S.b = p.get('b') || ''; S.f = p.get('f') || ''; S.q = p.get('q') || '';
+  S.view = p.get('v') || 'table'; S.room = p.get('r') || null;
+  S.cap = +(p.get('cap') || 0); S.typ = p.get('t') || '';
+  S.quick = new Set((p.get('quick') || '').split(',').filter(Boolean));
+  S.funcs = new Set((p.get('fn') || '').split(',').filter(Boolean).map(Number));
+}
+let hashLock = false;
+function writeHash() {
+  const p = new URLSearchParams();
+  if (S.b) p.set('b', S.b); if (S.f) p.set('f', S.f); if (S.q) p.set('q', S.q);
+  if (S.view !== 'table') p.set('v', S.view);
+  if (S.quick.size) p.set('quick', [...S.quick].join(',')); if (S.funcs.size) p.set('fn', [...S.funcs].join(','));
+  if (S.cap) p.set('cap', S.cap); if (S.typ) p.set('t', S.typ);
+  if (S.room && byKey[S.room]) p.set('r', byKey[S.room].label);
+  hashLock = true; history.replaceState(null, '', '#' + p.toString()); setTimeout(() => hashLock = false, 0);
+}
+
+/* ===================== search: ranked, space-aware ===================== */
+/* A trailing space finishes a word: "GE " then matches whole words only, so the
+   building code GE beats the "ge" inside "Gallery". Without the space both match,
+   but an exact code or room number still outranks a match inside a word. */
+function tokenize(q) {
+  const done = /\s$/.test(q);
+  const parts = q.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  return parts.map((t, i) => ({ t, whole: done || i < parts.length - 1, re: new RegExp('(^|[\\s(/\\-.,])' + rx(t)) }));
+}
+function fieldScore(s, tok, atStart, inside) {
+  if (!s) return 0;
+  if (s === tok.t) return atStart + 20;
+  if (tok.re.test(s)) return atStart;
+  if (!tok.whole && s.includes(tok.t)) return inside;
+  return 0;
+}
+function scoreRoom(r, toks) {
+  let total = 0;
+  for (const tok of toks) {
+    const t = tok.t;
+    let best = 0;
+    if (r._label === t) best = 150;
+    else if (r._label.startsWith(t)) best = Math.max(best, 90);
+    if (r._code === t) best = Math.max(best, 120);
+    else if (!tok.whole && r._code.startsWith(t)) best = Math.max(best, 55);
+    if (r._ref === t || r._ref.replace(/^0/, '') === t) best = Math.max(best, 110);
+    else if (r._ref.startsWith(t)) best = Math.max(best, 60);
+    if (r._tt && r._tt === t) best = Math.max(best, 110);
+    else if (r._tt && r._tt.startsWith(t)) best = Math.max(best, 50);
+    best = Math.max(best, fieldScore(r._b, tok, 45, 12), fieldScore(r._k, tok, 40, 10), fieldScore(r._nm, tok, 38, 10),
+                          fieldScore(r._u, tok, 30, 8), fieldScore(r._t, tok, 26, 6), fieldScore(r._dep, tok, 22, 5),
+                          fieldScore((r.sid || '').toLowerCase(), tok, 40, 8));
+    if (!best) return -1;
+    total += best;
+  }
+  /* tie-break: among equally good matches, put rooms people ask about first */
+  return total + (r.learn ? 3 : 0) + (r.c ? 2 : 0) + (r.nDocs ? 1 : 0);
+}
+function scoreBuilding(s, toks) {
+  let total = 0;
+  for (const tok of toks) {
+    const t = tok.t;
+    let best = 0;
+    if (s._c === t) best = 200;
+    else if (!tok.whole && s._c.startsWith(t)) best = Math.max(best, 80);
+    best = Math.max(best, fieldScore(s._n, tok, 60, 15));
+    if (!best) return -1;
+    total += best;
+  }
+  return total;
+}
+
+/* ===================== filtering ===================== */
+function passFilters(r) {
+  if (S.typ && r.u !== S.typ) return false;
+  if (S.cap && (r.c || 0) < S.cap) return false;
+  if (S.funcs.size && !r.g.some(g => S.funcs.has(g))) return false;
+  for (const k of S.quick) { const q = QUICK.find(x => x[0] === k); if (q && !q[2](r)) return false; }
+  return true;
+}
+function refresh() {
+  const toks = tokenize(S.q);
+  if (toks.length && !S.userSorted) S.sort = 'rel';
+  if (!toks.length && S.sort === 'rel') { S.sort = 'b'; S.dir = 1; }
+  base = [];
+  for (const r of R) {
+    if (!passFilters(r)) continue;
+    if (toks.length) { const sc = scoreRoom(r, toks); if (sc < 0) continue; r._s = sc; } else r._s = 0;
+    base.push(r);
+  }
+  bMatches = [];
+  if (toks.length) {
+    bMatches = BSTATS.map(s => ({ s, sc: scoreBuilding(s, toks) })).filter(x => x.sc > 0)
+      .sort((a, b) => b.sc - a.sc).slice(0, 5).map(x => x.s);
+  }
+  renderTree(); render(); writeHash();
+}
+
+/* ===================== sidebar ===================== */
+function renderChips() {
+  const chip = ([k,l,,]) => `<button class="chip${S.quick.has(k)?' on':''}" data-q="${k}" aria-pressed="${S.quick.has(k)}">${l}</button>`;
+  $('quick').innerHTML = QUICK.filter(x => !x[3]).map(chip).join('');
+  $('dataChips').innerHTML = QUICK.filter(x => x[3]).map(chip).join('');
+  [...$('quick').querySelectorAll('.chip'), ...$('dataChips').querySelectorAll('.chip')].forEach(el => el.onclick = () => {
+    const k = el.dataset.q; S.quick.has(k) ? S.quick.delete(k) : S.quick.add(k); renderChips(); refresh();
+  });
+  const nData = QUICK.filter(x => x[3] && S.quick.has(x[0])).length;
+  $('dataSummary').innerHTML = 'Data available' + (nData ? ` <span class="cnt" style="margin:0">${nData} on</span>` : '');
+  if (nData) $('dataMore').open = true;
+
+  $('funcs').innerHTML = FUNCS.map((f,i) => `<button class="chip${S.funcs.has(i)?' on':''}" data-i="${i}" aria-pressed="${S.funcs.has(i)}">${ICONS[f[2]]}${f[0]}</button>`).join('');
+  $('funcs').querySelectorAll('.chip').forEach(el => el.onclick = () => { const i = +el.dataset.i; S.funcs.has(i) ? S.funcs.delete(i) : S.funcs.add(i); renderChips(); refresh(); });
+
+  $('sizeSeg').innerHTML = SIZES.map(n => `<button class="${S.cap===n?'on':''}" data-n="${n}" aria-pressed="${S.cap===n}" aria-label="${n ? 'At least ' + n + ' seats' : 'Any size'}">${n ? n + '+' : 'Any'}</button>`).join('');
+  $('sizeSeg').querySelectorAll('button').forEach(b => b.onclick = () => {
+    const n = +b.dataset.n; S.cap = (S.cap === n) ? 0 : n;
+    if (S.cap && !S.userSorted && !S.q) { S.sort = 'c'; S.dir = -1; }
+    renderChips(); refresh();
+  });
+  $('typ').value = S.typ; $('typeBox').classList.toggle('has', !!S.typ);
+}
+function icons(b, f) {
+  const a = D.amen[b + '|' + f]; if (!a) return '';
+  return a.map(c => IC[c] ? `<span class="ic ${IC[c][0]}" title="${IC[c][2]}">${IC[c][1]}</span>` : '').join('');
+}
+const CARET = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>';
+function renderTree() {
+  const bC = {}, bF = {};
+  base.forEach(r => { bC[r.b] = (bC[r.b]||0)+1; (bF[r.b] = bF[r.b] || {})[r.f] = (bF[r.b][r.f]||0)+1; });
+  const filt = $('treeQ').value.trim().toLowerCase();
+  let h = `<div class="troot${!S.b?' sel':''}" data-b="" role="treeitem" tabindex="0" aria-selected="${!S.b}"><span style="flex:1">All buildings</span><span class="cnt">${nf(base.length)}<span class="sr-only"> rooms</span></span></div>`;
+  for (const B of D.b) {
+    const b = B.n; if (!bC[b]) continue;
+    if (filt && !title(b).toLowerCase().includes(filt) && !(B.code||'').toLowerCase().includes(filt)) continue;
+    const fs = Object.keys(bF[b]).sort((x,y) => fRank(x) - fRank(y));
+    const open = expanded[b] || S.b === b;
+    h += `<div class="bld" role="none"><div class="bhead${S.b===b&&!S.f?' sel':''}" data-b="${esc(b)}" role="treeitem" tabindex="0" aria-expanded="${open}" aria-selected="${S.b===b&&!S.f}" aria-label="${esc(title(b))}, ${bC[b]} rooms">
+      <span class="caret${open?' open':''}" aria-hidden="true">${CARET}</span><span class="code" aria-hidden="true">${esc(B.code)}</span><span class="bname">${esc(title(b))}</span><span class="cnt" aria-hidden="true">${nf(bC[b])}</span></div>
+      <div class="flrs${open?' open':''}" role="group">${fs.map(f => `<div class="flr${S.b===b&&S.f===f?' sel':''}" data-b="${esc(b)}" data-f="${esc(f)}" role="treeitem" tabindex="0" aria-selected="${S.b===b&&S.f===f}" aria-label="Floor ${esc(f)}, ${bF[b][f]} rooms${(D.amen[b+'|'+f]||[]).map(c => IC[c] ? ', ' + IC[c][2] : '').join('')}${B.maps && B.maps[f] ? ', interactive plan available' : ''}"><span class="flo" aria-hidden="true">${esc(f)}</span><span class="ics" aria-hidden="true">${icons(b,f)}${B.maps && B.maps[f] ? `<span class="map" title="Interactive floor plan">${ICONS.map}</span>` : ''}</span><span class="cnt" aria-hidden="true">${bF[b][f]}</span></div>`).join('')}</div></div>`;
+  }
+  const t = $('tree'); t.innerHTML = h;
+  t.querySelectorAll('.troot,.bhead,.flr').forEach(el => el.onclick = e => {
+    e.stopPropagation();
+    if (el.classList.contains('troot')) { S.b = ''; S.f = ''; }
+    else if (el.classList.contains('bhead')) { const b = el.dataset.b; if (S.b === b && !S.f) expanded[b] = !expanded[b]; else { S.b = b; S.f = ''; expanded[b] = true; } }
+    else { S.b = el.dataset.b; S.f = el.dataset.f; }
+    S.lim = 200; renderTree(); render(); writeHash();
+    if (window.innerWidth <= 1040) { $('side').classList.remove('open'); $('navToggle').setAttribute('aria-expanded', 'false'); }
+  });
+}
+$('legend').innerHTML = Object.values(IC).map(([cls,g,tip]) => `<span><span class="ic ${cls}">${g}</span> ${tip}</span>`).join('') + `<span><span class="ic a">${ICONS.map}</span> Interactive plan</span>`;
+
+/* ---------- room type combobox + browser ---------- */
+let suggIdx = -1;
+function renderSugg() {
+  const v = $('typ').value.trim().toLowerCase(), box = $('sugg');
+  const list = (v ? TYPES.filter(t => t.toLowerCase().includes(v)) : TYPES.filter(t => TYPE_LEARN[t])).slice(0, 40);
+  if (!list.length) { box.classList.remove('open'); $('typ').setAttribute('aria-expanded', 'false'); return; }
+  const re = v ? new RegExp('(' + rx(v) + ')', 'ig') : null;
+  box.innerHTML = (v ? '' : '<div class="hint" role="presentation">Learning space types — type to search all</div>')
+    + list.map((t, i) => `<div data-t="${esc(t)}" id="sugg-${i}" role="option" aria-selected="${i===suggIdx}" class="${i===suggIdx?'hi':''}"><span class="l">${re ? esc(t).replace(re, '<mark>$1</mark>') : esc(t)}</span><span>${nf(TYPE_COUNT[t])}<span class="sr-only"> rooms</span></span></div>`).join('');
+  box.classList.add('open'); $('typ').setAttribute('aria-expanded', 'true');
+  if (suggIdx >= 0) $('typ').setAttribute('aria-activedescendant', 'sugg-' + suggIdx); else $('typ').removeAttribute('aria-activedescendant');
+  box.querySelectorAll('div[data-t]').forEach(d => d.onmousedown = e => { e.preventDefault(); setType(d.dataset.t); });
+}
+function setType(t) { S.typ = t; suggIdx = -1; $('sugg').classList.remove('open'); $('typ').setAttribute('aria-expanded', 'false'); renderChips(); refresh(); $('typ').blur(); }
+$('typ').addEventListener('focus', () => { suggIdx = -1; if (S.typ) $('typ').select(); renderSugg(); });
+$('typ').addEventListener('input', () => { suggIdx = -1; renderSugg(); });
+$('typ').addEventListener('blur', () => setTimeout(() => { $('sugg').classList.remove('open'); $('typ').setAttribute('aria-expanded', 'false'); $('typ').value = S.typ; }, 120));
+$('typ').addEventListener('keydown', e => {
+  const items = $('sugg').querySelectorAll('div[data-t]');
+  if (e.key === 'ArrowDown') { suggIdx = Math.min(items.length - 1, suggIdx + 1); renderSugg(); e.preventDefault(); }
+  else if (e.key === 'ArrowUp') { suggIdx = Math.max(0, suggIdx - 1); renderSugg(); e.preventDefault(); }
+  else if (e.key === 'Enter') { const pick = items[suggIdx >= 0 ? suggIdx : 0]; if (pick) setType(pick.dataset.t); }
+  else if (e.key === 'Escape') { $('sugg').classList.remove('open'); $('typ').blur(); }
+});
+$('typClr').onclick = () => { S.typ = ''; renderChips(); refresh(); };
+function openTypeModal() {
+  $('tgrid').innerHTML = TYPES.map(t => `<div class="tcell${TYPE_LEARN[t]?' learn':''}${S.typ===t?' on':''}" data-t="${esc(t)}" role="button" tabindex="0" aria-pressed="${S.typ===t}"><span>${esc(t)}${TYPE_LEARN[t] ? '<span class="sr-only"> (learning space)</span>' : ''}</span><span class="n">${nf(TYPE_COUNT[t])}<span class="sr-only"> rooms</span></span></div>`).join('');
+  $('typeModalSub').textContent = `${TYPES.length} types · ${nf(R.length)} rooms`;
+  $('tgrid').querySelectorAll('.tcell').forEach(c => c.onclick = () => { setType(c.dataset.t); closeDialog($('typeModal')); });
+  openDialog($('typeModal'), $('typeModalClose'));
+}
+$('typInfo').onclick = openTypeModal;
+$('typeModalClose').onclick = () => closeDialog($('typeModal'));
+$('typeModal').onclick = e => { if (e.target === $('typeModal')) closeDialog($('typeModal')); };
+
+/* ---------- dialogs: focus move, return and trap ---------- */
+const dialogStack = [];
+function openDialog(el, focusEl) { dialogStack.push({ el, prev: document.activeElement }); el.classList.add('open'); (focusEl || el.querySelector('button, [href], input, [tabindex]')).focus(); }
+function closeDialog(el) {
+  el.classList.remove('open');
+  const i = dialogStack.findIndex(d => d.el === el);
+  if (i >= 0) { const d = dialogStack.splice(i, 1)[0]; if (d.prev && d.prev.focus && document.contains(d.prev)) d.prev.focus(); }
+}
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Tab' || !dialogStack.length) return;
+  const el = dialogStack[dialogStack.length - 1].el;
+  const f = [...el.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')].filter(x => !x.disabled && x.offsetParent !== null);
+  if (!f.length) return;
+  if (e.shiftKey && document.activeElement === f[0]) { f[f.length - 1].focus(); e.preventDefault(); }
+  else if (!e.shiftKey && document.activeElement === f[f.length - 1]) { f[0].focus(); e.preventDefault(); }
+});
+document.addEventListener('keydown', e => {
+  const t = e.target;
+  if ((e.key === 'Enter' || e.key === ' ') && t && t.matches && t.matches('[role="button"], [role="treeitem"], tr[data-k], th[data-k]') && !/^(BUTTON|A|INPUT|SELECT)$/.test(t.tagName)) { e.preventDefault(); t.click(); }
+});
+$('helpBtn').onclick = () => openDialog($('helpModal'), $('helpClose'));
+$('helpClose').onclick = () => closeDialog($('helpModal'));
+$('helpModal').onclick = e => { if (e.target === $('helpModal')) closeDialog($('helpModal')); };
+
+/* ===================== interactive floor plan ===================== */
+function fpHTML(B, fl, cur) {
+  const M = B.maps && B.maps[fl]; if (!M) return '';
+  const inView = new Set(view.map(r => r.key));
+  const bi = bIdx[B.n];
+  const EXP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>';
+  const hots = Object.entries(M.rooms).map(([ref, [x, y, w, h]]) => {
+    const key = bi + '|' + ref, rr = byKey[key], padX = 0.006, padY = 0.008;
+    const cls = key === cur ? 'cur' : (inView.has(key) ? 'in' : (cur ? 'dim' : ''));
+    return `<div class="hot ${cls}" data-room="${key}" role="button" tabindex="0" aria-label="${rr ? esc(rr.label + (rr.k ? ', ' + rr.k : '') + (rr.c ? ', ' + rr.c + ' seats' : '')) : esc(ref)}${key === cur ? ' (this room)' : ''}" style="left:${((x - padX) * 100).toFixed(2)}%;top:${((y - padY) * 100).toFixed(2)}%;width:${((w + 2 * padX) * 100).toFixed(2)}%;height:${((h + 2 * padY) * 100).toFixed(2)}%"></div>`;
+  }).join('');
+  const n = Object.keys(M.rooms).length;
+  return `<div class="fpwrap"><button class="expand" data-expand="${esc(fl)}" data-cur="${cur || ''}" title="Open full screen">${EXP} Full screen</button>
+    <div class="fp" style="width:${S.fpzoom * 100}%"><img src="${href(M.img)}" alt="Floor plan of ${esc(title(B.n))}, floor ${esc(fl)}" draggable="false">${hots}</div></div>
+    <div class="fpnote"><span><i class="in" aria-hidden="true"></i>${cur ? 'other rooms' : 'rooms in the current list'}</span>${cur ? '<span><i class="cur" aria-hidden="true"></i>this room</span>' : ''}<span>${n} rooms located · hover or focus for details, activate to open</span><a href="${href(M.src)}" target="_blank" aria-label="Open the source Illustrator drawing for this floor">source .ai</a></div>`;
+}
+function wireFP(root, onPick, B) {
+  const tip = $('fptip');
+  root.querySelectorAll('[data-expand]').forEach(b => b.onclick = e => { e.stopPropagation(); openPlanModal(B || D.b[bIdx[S.b]], b.dataset.expand, b.dataset.cur || null); });
+  root.querySelectorAll('.fp .hot').forEach(h => {
+    const r = byKey[h.dataset.room];
+    const show = () => { if (!r) return; tip.innerHTML = `<b>${esc(r.label)}</b>${esc(r.k || r.u || '')}${r.c ? ` · ${r.c} seats` : ''}${r.a ? ` · ${r.a.toFixed(0)} m²` : ''}`; tip.classList.add('show'); };
+    h.onmouseenter = show;
+    h.onfocus = () => { show(); const b2 = h.getBoundingClientRect(); tip.style.left = Math.min(window.innerWidth - 280, b2.left) + 'px'; tip.style.top = (b2.bottom + 6) + 'px'; };
+    h.onmousemove = e => { tip.style.left = Math.min(window.innerWidth - 280, e.clientX + 14) + 'px'; tip.style.top = (e.clientY + 16) + 'px'; };
+    h.onmouseleave = () => tip.classList.remove('show'); h.onblur = () => tip.classList.remove('show');
+    h.onclick = e => { e.stopPropagation(); tip.classList.remove('show'); onPick(h.dataset.room); };
+  });
+  root.querySelectorAll('[data-zoom]').forEach(b => b.onclick = () => {
+    S.fpzoom = +b.dataset.zoom;
+    root.querySelectorAll('[data-zoom]').forEach(x => { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', x === b); });
+    root.querySelectorAll('.fp').forEach(fp => fp.style.width = (S.fpzoom * 100) + '%');
+  });
+}
+const zoomTools = () => `<span class="tools" role="group" aria-label="Plan zoom">${[1,1.5,2,3].map(z => `<button data-zoom="${z}" class="${S.fpzoom===z?'on':''}" aria-pressed="${S.fpzoom===z}" aria-label="${z === 1 ? 'Fit plan to width' : 'Zoom plan to ' + z + ' times'}">${z === 1 ? 'Fit' : z + '×'}</button>`).join('')}</span>`;
+
+/* full-screen viewer */
+const PM = { scale:1, tx:0, ty:0, natW:0, natH:0, fit:1 };
+function pmApply() { $('pmCanvas').style.transform = `translate(${PM.tx}px,${PM.ty}px) scale(${PM.scale})`; $('pmPct').textContent = Math.round(PM.scale * 100) + '%'; }
+function pmFit() {
+  const st = $('pmStage'); if (!PM.natW) return;
+  PM.fit = Math.min(st.clientWidth / PM.natW, st.clientHeight / PM.natH) * 0.96;
+  PM.scale = PM.fit; PM.tx = (st.clientWidth - PM.natW * PM.scale) / 2; PM.ty = (st.clientHeight - PM.natH * PM.scale) / 2; pmApply();
+}
+function pmZoomAt(factor, cx, cy) {
+  const st = $('pmStage'), ns = Math.min(8, Math.max(PM.fit * 0.5, PM.scale * factor));
+  if (cx === undefined) { cx = st.clientWidth / 2; cy = st.clientHeight / 2; }
+  PM.tx = cx - (cx - PM.tx) * (ns / PM.scale); PM.ty = cy - (cy - PM.ty) * (ns / PM.scale); PM.scale = ns; pmApply();
+}
+function pmCentreRoom() {
+  const hot = $('pmCanvas').querySelector('.hot.cur'); if (!hot) return;
+  const st = $('pmStage'), x = hot.offsetLeft + hot.offsetWidth / 2, y = hot.offsetTop + hot.offsetHeight / 2;
+  PM.scale = Math.max(PM.fit * 2.5, Math.min(3, PM.fit * 2.5));
+  PM.tx = st.clientWidth / 2 - x * PM.scale; PM.ty = st.clientHeight / 2 - y * PM.scale; pmApply();
+}
+function openPlanModal(B, fl, cur) {
+  const M = B.maps && B.maps[fl]; if (!M) return;
+  const room = cur ? byKey[cur] : null;
+  $('pmTitle').innerHTML = `${esc(title(B.n))} · Floor ${esc(fl)}${room ? `<small>${esc(room.label)}${room.k ? ' · ' + esc(room.k) : ''}</small>` : ''}`;
+  $('pmSrc').href = href(M.src);
+  const n = Object.keys(M.rooms).length;
+  $('pmFoot').innerHTML = `<span><i class="in" aria-hidden="true"></i>${cur ? 'other rooms' : 'rooms in the current list'}</span>${cur ? '<span><i class="cur" aria-hidden="true"></i>this room</span>' : ''}<span>${n} rooms located · drag to pan · scroll or +/− to zoom · choose a room to open it</span>`;
+  const tmp = document.createElement('div');
+  tmp.innerHTML = fpHTML(B, fl, cur).replace(/<button class="expand"[\s\S]*?<\/button>/, '');
+  const fp = tmp.querySelector('.fp'); fp.style.width = '';
+  const cv = $('pmCanvas'); cv.innerHTML = ''; cv.appendChild(fp);
+  $('pmRoom').style.display = cur ? '' : 'none';
+  openDialog($('pm'), $('pmClose'));
+  const img = fp.querySelector('img');
+  const ready = () => { PM.natW = img.naturalWidth; PM.natH = img.naturalHeight; fp.style.width = PM.natW + 'px'; img.style.width = PM.natW + 'px'; pmFit(); if (cur) pmCentreRoom(); };
+  if (img.complete && img.naturalWidth) ready(); else img.onload = ready;
+  wireFP(cv, key => { closePlanModal(); openRoom(key); }, B);
+}
+function closePlanModal() { closeDialog($('pm')); $('fptip').classList.remove('show'); }
+$('pmClose').onclick = closePlanModal;
+$('pmIn').onclick = () => pmZoomAt(1.25); $('pmOut').onclick = () => pmZoomAt(0.8); $('pmFit').onclick = pmFit; $('pmRoom').onclick = pmCentreRoom;
+(() => {
+  const st = $('pmStage'); let drag = null;
+  st.addEventListener('pointerdown', e => { if (e.button !== 0) return; drag = { x:e.clientX, y:e.clientY, tx:PM.tx, ty:PM.ty, moved:false }; st.classList.add('drag'); st.setPointerCapture(e.pointerId); });
+  st.addEventListener('pointermove', e => { if (!drag) return; const dx = e.clientX - drag.x, dy = e.clientY - drag.y; if (Math.abs(dx) + Math.abs(dy) > 3) drag.moved = true; PM.tx = drag.tx + dx; PM.ty = drag.ty + dy; pmApply(); });
+  const end = () => { if (drag && drag.moved) { const swallow = ev => { ev.stopPropagation(); ev.preventDefault(); st.removeEventListener('click', swallow, true); }; st.addEventListener('click', swallow, true); setTimeout(() => st.removeEventListener('click', swallow, true), 50); } drag = null; st.classList.remove('drag'); };
+  st.addEventListener('pointerup', end); st.addEventListener('pointercancel', end);
+  st.addEventListener('wheel', e => { e.preventDefault(); const r2 = st.getBoundingClientRect(); pmZoomAt(e.deltaY < 0 ? 1.15 : 1/1.15, e.clientX - r2.left, e.clientY - r2.top); }, { passive:false });
+  st.addEventListener('dblclick', e => { const r2 = st.getBoundingClientRect(); pmZoomAt(1.6, e.clientX - r2.left, e.clientY - r2.top); });
+  window.addEventListener('resize', () => { if ($('pm').classList.contains('open')) pmFit(); });
+})();
+
+/* ===================== A–Z index (landing) ===================== */
+function goBuilding(n) { S.b = n; S.f = ''; expanded[n] = true; S.lim = 200; renderTree(); render(); writeHash(); window.scrollTo(0, 0); }
+function renderIndex() {
+  const tot = BSTATS.reduce((a, s) => ({ rooms:a.rooms+s.rooms, learn:a.learn+s.learn, seats:a.seats+s.seats, area:a.area+s.area }), {rooms:0,learn:0,seats:0,area:0});
+  const have = new Set(BY_NAME.map(s => s.letter));
+  const mark = (on, icon, label) => on ? `<span title="${label}" aria-label="${label}">${ICONS[icon]}</span>` : '';
+  let h = `<div class="dash"><h2>Buildings A–Z</h2>
+    <p class="lede">Every room Castlegate University records, arranged by building. Castlegate University is made up: only the Glassworks (GW) has rooms, and the other buildings are empty on purpose. Choose a building for its floors, plans and rooms, or search at the top for a room number, name or code.</p>
+    <div class="totals">
+      <div><b>${BSTATS.length}</b><span>Buildings</span></div>
+      <div><b>${nf(tot.rooms)}</b><span>Rooms</span></div>
+      <div><b>${nf(tot.learn)}</b><span>Learning spaces</span></div>
+      <div><b>${nf(tot.seats)}</b><span>Seats</span></div>
+      <div><b>${nf(Math.round(tot.area))}</b><span>m² total</span></div>
+    </div>
+    <nav class="alpha" aria-label="Jump to a letter">${LETTERS.map(L => `<button data-l="${L}"${have.has(L) ? '' : ' disabled'} aria-label="${L === '#' ? 'Buildings starting with a number' : 'Buildings starting with ' + L}">${L}</button>`).join('')}</nav>`;
+  let last = '';
+  for (const s of BY_NAME) {
+    if (s.letter !== last) { if (last) h += '</ul></div>'; h += `<div class="idxgrp"><h3 id="ltr-${s.letter}">${s.letter === '#' ? '0–9' : s.letter}</h3><ul class="idx">`; last = s.letter; }
+    h += `<li><a class="idxrow" href="#b=${encodeURIComponent(s.n)}" data-b="${esc(s.n)}" aria-label="${esc(s.name)}, ${s.rooms} rooms, ${s.learn} learning spaces, ${s.seats} seats">
+      <span class="code" aria-hidden="true">${esc(s.code)}</span>
+      <span class="nm"><b>${esc(s.name)}</b><span>${esc(s.fac || '—')} · ${s.nFloors} floor${s.nFloors === 1 ? '' : 's'}</span></span>
+      <span class="n"><b>${nf(s.rooms)}</b><em>rooms</em></span>
+      <span class="n hide-sm"><b>${nf(s.learn)}</b><em>learning</em></span>
+      <span class="n hide-sm"><b>${nf(s.seats)}</b><em>seats</em></span>
+      <span class="marks" aria-hidden="true">${mark(s.maps, 'map', s.maps + ' interactive floor plans')}${mark(s.decks, 'deck', s.decks + ' layout decks')}${mark(s.util, 'chart', 'utilisation survey')}${mark(s.docs, 'file', s.docs + ' drawings and profiles')}</span></a></li>`;
+  }
+  h += `</ul></div><div class="dashfoot"><span>A teaching example for Screen Design. Invented data; the interface is a real prototype.</span></div></div>`;
+  $('results').innerHTML = h;
+  $('ctx').innerHTML = '';
+  $('more').innerHTML = '';
+  $('results').querySelectorAll('.alpha button:not([disabled])').forEach(b => b.onclick = () => {
+    const el = $('ltr-' + b.dataset.l); if (el) { const y = el.getBoundingClientRect().top + window.scrollY - 120; window.scrollTo({ top:y, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' }); }
+  });
+  $('results').querySelectorAll('.idxrow').forEach(a => a.onclick = e => { e.preventDefault(); goBuilding(a.dataset.b); });
+}
+
+/* ===================== context header ===================== */
+const KIND = { PDF:'PDF document', PPTX:'PowerPoint deck', ELEV:'elevation drawing (PDF)', JPG:'image', PNG:'image', SVG:'image' };
+function docBtn(label, kind, p, n) {
+  return `<a class="doc" href="${href(p)}" target="_blank" aria-label="Open ${esc(label)}, ${KIND[kind] || kind}${n ? ', ' + n : ''}"><span class="k" aria-hidden="true">${kind}</span>${esc(label)}${n ? `<span class="n">${n}</span>` : ''}</a>`;
+}
+function renderCtx() {
+  const area = view.reduce((s,r) => s + (r.a||0), 0), cap = view.reduce((s,r) => s + (r.c||0), 0), learn = view.filter(r => r.learn).length;
+  const figures = `<div class="figures"><span><b>${nf(view.length)}</b> rooms</span><span><b>${nf(learn)}</b> learning spaces</span><span><b>${nf(cap)}</b> seats</span><span><b>${nf(Math.round(area))}</b> m²</span></div>`;
+  if (!S.b) {
+    $('ctx').innerHTML = `<div class="ctx"><div class="crumb"><a data-nav="all">Buildings A–Z</a><span class="sep">/</span><span>Search results</span></div>
+      <h2>${S.q ? `“${esc(S.q)}”` : 'Filtered rooms'}</h2>${figures}</div>`;
+    $('ctx').querySelectorAll('[data-nav]').forEach(a => { a.setAttribute('href', '#'); a.setAttribute('role', 'button'); a.onclick = e => { e.preventDefault(); clearAll(); }; });
+    return;
+  }
+  const B = D.b[bIdx[S.b]], st = BSTATS[bIdx[S.b]];
+  const meta = [B.fac && `${esc(B.fac)}`, B.contact.reception && `Reception ext ${esc(B.contact.reception)}`,
+                B.contact.fm && `<a href="mailto:${esc(B.contact.fm)}">${esc(B.contact.fm)}</a>`].filter(Boolean);
+  let h = `<div class="ctx">
+    <div class="crumb"><a data-nav="all">Buildings A–Z</a><span class="sep">/</span>${S.f ? `<a data-nav="b">${esc(title(B.n))}</a><span class="sep">/</span><span>Floor ${esc(S.f)}</span>` : `<span>${esc(title(B.n))}</span>`}</div>
+    <h2>${esc(title(B.n))}${B.code ? `<span class="code">${esc(B.code)}</span>` : ''}${B.prop ? `<span class="code" title="Property code">${esc(B.prop)}</span>` : ''}</h2>
+    <div class="meta">${meta.join('<span class="dot">·</span>')}</div>${figures}`;
+  // floor switcher
+  const floors = [...new Set(base.filter(r => r.b === S.b).map(r => r.f))].sort((a,b) => fRank(a) - fRank(b));
+  if (floors.length > 1) {
+    h += `<div class="floorbar" role="group" aria-label="Floors"><span class="lab">Floors</span>
+      <button data-f="" class="${S.f ? '' : 'on'}" aria-pressed="${!S.f}">All</button>` +
+      floors.map(f => `<button data-f="${esc(f)}" class="${S.f===f?'on':''}" aria-pressed="${S.f===f}" aria-label="Floor ${esc(f)}${B.maps && B.maps[f] ? ', interactive plan available' : ''}">${esc(f)}${B.maps && B.maps[f] ? '<span class="fdot" aria-hidden="true"></span>' : ''}</button>`).join('') + `</div>`;
+  }
+  h += `</div>`;
+  // one panel for the floor's plan, one disclosure for documents
+  if (S.f && B.maps && B.maps[S.f]) h += `<div class="panel"><h3>Floor ${esc(S.f)} plan<span class="sp"></span>${zoomTools()}</h3>${fpHTML(B, S.f, S.room && byKey[S.room] ? byKey[S.room].key : null)}</div>`;
+  const docs = [];
+  const mapFloors = Object.keys(B.maps || {}).sort((x,y) => fRank(x) - fRank(y));
+  if (S.f && B.plans[S.f]) PLAN_ORDER.filter(t => B.plans[S.f][t]).forEach(t => docs.push(docBtn(`${t} plan`, 'PDF', B.plans[S.f][t].f)));
+  if (!S.f) mapFloors.forEach(f => { const pl = B.plans[f]; if (pl && pl.Access) docs.push(docBtn(`Floor ${f} access plan`, 'PDF', pl.Access.f)); });
+  (B.decks || []).forEach(d => docs.push(docBtn(d.d, 'PPTX', d.f, d.n + ' slides')));
+  (B.elev || []).forEach(e => docs.push(docBtn(e.d.length > 42 ? e.d.slice(0,40) + '…' : e.d, 'ELEV', e.f)));
+  (B.layouts || []).forEach(l => docs.push(docBtn(l.s, l.k.toUpperCase(), l.f)));
+  /* no campus map: the university is invented */
+  h += `<details class="docs panel"${S.f ? ' open' : ''}><summary>Plans and documents <span class="cnt" style="margin:0">${docs.length}</span></summary><div class="docs-list">${docs.join('')}</div></details>`;
+  if (S.f) {
+    const a = D.amen[B.n + '|' + S.f];
+    if (a && a.length) h += `<div class="amen">${a.map(c => IC[c] ? `<span><b class="ic ${IC[c][0]}">${IC[c][1]}</b> ${IC[c][2]}</span>` : '').join('')}</div>`;
+  }
+  $('ctx').innerHTML = h;
+  $('ctx').querySelectorAll('[data-nav]').forEach(a => { a.setAttribute('href', '#'); a.setAttribute('role', 'button'); a.onclick = e => { e.preventDefault(); if (a.dataset.nav === 'all') { S.b = ''; S.f = ''; } else S.f = ''; renderTree(); render(); writeHash(); }; });
+  $('ctx').querySelectorAll('.floorbar button').forEach(b => b.onclick = () => { S.f = b.dataset.f; S.lim = 200; renderTree(); render(); writeHash(); });
+  wireFP($('ctx'), openRoom, B);
+}
+
+/* ===================== results ===================== */
+function heroImg(r, cls) { return r.hero ? `<img class="${cls}" loading="lazy" src="${href(r.hero)}" alt="" role="presentation">` : ''; }
+function marks(r) {
+  const m = [];
+  if (r.nDocs) m.push(`<span title="${r.nDocs} drawing${r.nDocs>1?'s':''} or profile">${ICONS.file}${r.nDocs}</span>`);
+  if (r.util) m.push(`<span title="Utilisation survey: ${r.util.avg}% average occupancy">${ICONS.chart}${r.util.avg}%</span>`);
+  return m.length ? `<span class="marks">${m.join('')}</span>` : '';
+}
+function render() {
+  if (isIndex()) { view = []; renderIndex(); updateSub(); return; }
+  view = base.filter(r => (!S.b || r.b === S.b) && (!S.f || r.f === S.f));
+  const k = S.sort, dir = S.dir;
+  view.sort((x,y) => {
+    if (k === 'rel') return (y._s - x._s) || x.b.localeCompare(y.b) || (fRank(x.f) - fRank(y.f)) || String(x.ref).localeCompare(String(y.ref), undefined, {numeric:true});
+    let a = x[k], b = y[k];
+    if (k === 'f') { a = fRank(a); b = fRank(b); }
+    if (k === 'ref') { a = fRank(x.f) * 1e6 + (parseFloat(String(x.ref).replace(/[^\d.]/g,'')) || 0); b = fRank(y.f) * 1e6 + (parseFloat(String(y.ref).replace(/[^\d.]/g,'')) || 0); if (a === b) { a = x.ref; b = y.ref; } }
+    if (typeof a === 'string') { a = a.toLowerCase(); b = String(b||'').toLowerCase(); }
+    a = a ?? ''; b = b ?? '';
+    if (a === b) return x.b === y.b ? (fRank(x.f) - fRank(y.f) || String(x.ref).localeCompare(String(y.ref), undefined, {numeric:true})) : x.b.localeCompare(y.b);
+    return (a < b ? -1 : 1) * dir;
+  });
+  renderCtx();
+
+  const shown = view.slice(0, S.lim);
+  let h = '';
+  // building suggestions when searching
+  if (bMatches.length) {
+    h += `<div class="bmatch"><b>Buildings</b>${bMatches.map(s => `<button data-b="${esc(s.n)}">${esc(s.name)}<small>${esc(s.code)} · ${nf(s.rooms)} rooms</small></button>`).join('')}</div>`;
+  }
+  // toolbar
+  const chips = [];
+  if (S.q) chips.push(['q', `“${esc(S.q)}”`]);
+  if (S.typ) chips.push(['typ', esc(S.typ)]);
+  if (S.cap) chips.push(['cap', `${S.cap}+ seats`]);
+  S.quick.forEach(k2 => { const q = QUICK.find(x => x[0] === k2); if (q) chips.push(['quick:' + k2, q[1]]); });
+  S.funcs.forEach(i => chips.push(['fn:' + i, FUNCS[i][0]]));
+  const elsewhere = (S.b && S.q) ? base.length - view.length : 0;
+  h += `<div class="toolbar"><div class="count" role="status" aria-live="polite"><b>${nf(view.length)}</b> room${view.length===1?'':'s'}${S.b ? ' in ' + esc(title(S.b)) : ''}${view.length > shown.length ? ` · showing ${shown.length}` : ''}${elsewhere > 0 ? ` · <button class="lnk" id="allB" style="border:0;background:none;color:var(--link);cursor:pointer;padding:4px;font-size:13px">${nf(elsewhere)} more elsewhere</button>` : ''}</div>
+    <div class="active" role="group" aria-label="Active filters">${chips.map(([k2,l]) => `<button class="chip" data-x="${k2}" aria-label="Remove filter: ${l.replace(/<[^>]+>/g,'')}">${l} <span aria-hidden="true">×</span></button>`).join('')}</div>
+    <div class="spacer"></div>
+    <label for="sortSel" class="sr-only">Sort rooms</label>
+    <select id="sortSel">
+      ${S.q ? `<option value="rel|1">Best match</option>` : ''}
+      <option value="b|1">Building</option><option value="ref|1">Room number</option>
+      <option value="c|-1">Most seats</option><option value="c|1">Fewest seats</option>
+      <option value="a|-1">Largest area</option><option value="k|1">Known as</option><option value="u|1">Use</option>
+    </select>
+    <div class="seg" id="viewSeg" role="group" aria-label="Results view">
+      <button data-v="table" title="Table view" aria-label="Table view" aria-pressed="${S.view==='table'}"><svg class="i" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+      <button data-v="grid" title="Card view" aria-label="Card view" aria-pressed="${S.view==='grid'}"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></button>
+    </div></div>`;
+
+  if (!view.length) {
+    h += `<div class="empty"><b>No rooms match${S.b ? ' in ' + esc(title(S.b)) : ''}</b>` +
+      (base.length ? `${nf(base.length)} room${base.length===1?'':'s'} match elsewhere in the estate. <button class="btn" id="allB2" style="margin-top:12px">Search all buildings</button>`
+                   : 'Try removing a filter, or search for a room number such as GW 2.03.') + `</div>`;
+  } else if (S.view === 'grid') {
+    h += `<div class="grid" role="group" aria-label="Rooms">` + shown.map(r => `<button class="card" data-k="${r.key}" aria-label="Open room ${esc(r.label)}${r.k ? ', ' + esc(r.k) : ''}">
+      <span class="img">${r.hero ? heroImg(r,'') : `<span class="ph" aria-hidden="true">${esc(r.code || '')}</span>`}</span>
+      <span class="body"><span class="t"><b>${esc(r.label)}</b>${r.c ? `<span class="cap"><b>${r.c}</b> seats</span>` : ''}</span>
+        <span class="k">${esc(r.k || r.u || '—')}</span>
+        <span class="sub">${esc(title(r.b))} · Floor ${esc(r.f)}${r.a ? ` · ${r.a.toFixed(0)} m²` : ''}</span></span></button>`).join('') + `</div>`;
+  } else {
+    const showB = !S.b, showF = !S.f;
+    const th = (kk, lbl, cls='') => `<th class="${cls}" data-k="${kk}" scope="col" tabindex="0" role="columnheader" aria-sort="${S.sort===kk ? (S.dir>0 ? 'ascending' : 'descending') : 'none'}" aria-label="${lbl.replace(' m²',' in square metres')}, sort">${lbl}${S.sort===kk ? `<span class="arr" aria-hidden="true">${S.dir>0?'↑':'↓'}</span>` : ''}</th>`;
+    h += `<div class="tablewrap"><table><caption class="sr-only">Rooms matching the current filters, ${shown.length} of ${view.length} shown</caption><thead><tr>${th('ref','Room')}${showB?th('b','Building'):''}${showF?th('f','Floor'):''}${th('k','Known as')}${th('u','Use')}${th('a','Area m²','num c-a')}${th('c','Seats','num')}</tr></thead><tbody>` +
+      shown.map(r => `<tr data-k="${r.key}" tabindex="0" role="button" aria-label="Open room ${esc(r.label)}${r.k ? ', ' + esc(r.k) : ''}">
+        <td><span class="sid">${r.hero ? heroImg(r,'thumb') : `<span class="noimg" aria-hidden="true"></span>`}<span>${esc(r.label)}${marks(r)}</span></span></td>` +
+        (showB ? `<td>${esc(title(r.b))}</td>` : '') + (showF ? `<td><span class="flo">${esc(r.f)}</span></td>` : '') +
+        `<td>${esc(r.k || '—')}</td><td>${esc(r.u || '—')}${r.dep && r.dep !== 'Balance' ? `<br><span class="sub">${esc(r.dep)}</span>` : ''}</td>
+        <td class="num c-a">${r.a ? r.a.toFixed(1) : '—'}</td><td class="num">${r.c || '—'}</td></tr>`).join('') + `</tbody></table></div>`;
+  }
+  $('results').innerHTML = h;
+  $('more').innerHTML = view.length > S.lim ? `Showing ${S.lim} of ${nf(view.length)}<button class="btn" id="moreBtn">Show more</button>` : '';
+  const mb = $('moreBtn'); if (mb) mb.onclick = () => { S.lim += 500; render(); };
+
+  $('results').querySelectorAll('[data-k]').forEach(el => { if (el.tagName !== 'TH') el.onclick = () => openRoom(el.dataset.k); });
+  $('results').querySelectorAll('th[data-k]').forEach(t => t.onclick = () => { const kk = t.dataset.k; S.dir = S.sort === kk ? -S.dir : 1; S.sort = kk; S.userSorted = true; render(); });
+  $('results').querySelectorAll('.bmatch button').forEach(b => b.onclick = () => goBuilding(b.dataset.b));
+  ['allB','allB2'].forEach(id => { const el = $(id); if (el) el.onclick = () => { S.b = ''; S.f = ''; renderTree(); render(); writeHash(); }; });
+  $('results').querySelectorAll('.active .chip').forEach(c => c.onclick = () => {
+    const x = c.dataset.x;
+    if (x === 'q') { S.q = ''; $('q').value = ''; } else if (x === 'typ') S.typ = ''; else if (x === 'cap') S.cap = 0;
+    else if (x.startsWith('quick:')) S.quick.delete(x.slice(6)); else if (x.startsWith('fn:')) S.funcs.delete(+x.slice(3));
+    renderChips(); refresh();
+  });
+  const ss = $('sortSel');
+  if (ss) { ss.value = `${S.sort}|${S.dir}`; if (!ss.value) ss.value = `${S.sort}|1`; ss.onchange = () => { const [kk,d] = ss.value.split('|'); S.sort = kk; S.dir = +d; S.userSorted = true; render(); }; }
+  $('results').querySelectorAll('#viewSeg button').forEach(b => b.onclick = () => { S.view = b.dataset.v; render(); writeHash(); });
+  updateSub();
+}
+function updateSub() {
+  $('sub').textContent = isIndex() ? `${BSTATS.length} buildings · ${nf(R.length)} rooms`
+    : `${nf(view.length)} of ${nf(R.length)} rooms`;
+}
+
+/* ===================== room profile ===================== */
+function fact(label, val, big, small) {
+  if (val === undefined || val === null || val === '' || val === 0) return '';
+  return `<div class="fact"><span>${label}</span><b class="${big?'big':''}" title="${esc(val)}">${esc(val)}</b>${small ? `<small>${esc(small)}</small>` : ''}</div>`;
+}
+function openRoom(key) {
+  const r = byKey[key]; if (!r) return;
+  key = r.key; S.room = key; writeHash();
+  const B = D.b[r.bi];
+  const card = r.prof.find(p => p.kind === 'card'), reset = r.prof.find(p => p.kind === 'reset');
+  const images = [];
+  if (card && card.img) images.push({src: card.img, cap: `${card.name || 'Room profile'} — ${card.style || ''} layout`.replace(/ — $/,''), src2: card.deck, slide: card.slide});
+  if (reset && reset.img) images.push({src: reset.img, cap: `Reset layout — ${reset.style || ''}`.replace(/ — $/,''), src2: reset.deck, slide: reset.slide});
+  r.layShown.forEach(l => { const s = l.t || ((l.k === 'jpg' || l.k === 'png' || l.k === 'svg') ? l.f : null); if (s && !images.some(x => x.src === s)) images.push({src: s, cap: l.s, src2: l.f}); });
+  const tags = [r.learn ? '<span class="tag learn">Learning space</span>' : '', r.tim ? '<span class="tag">Timetabled</span>' : '',
+                r.em && r.em !== 'Balance' ? `<span class="tag">${esc(r.em)}</span>` : '', r.style ? `<span class="tag">${esc(r.style)} layout</span>` : ''].join('');
+  let h = `<div class="dhead"><div class="titles">
+      <div class="crumb"><a data-go="b">${esc(title(r.b))}</a><span class="sep">/</span><a data-go="f">Floor ${esc(r.f)}</a>${r.sid ? `<span class="sep">·</span><span class="mono">${esc(r.sid)}</span>` : ''}</div>
+      <h3 id="dTitle" tabindex="-1">${esc(r.label)}${r.k && r.k !== r.u ? `<span class="kn">${esc(r.k)}</span>` : (card && card.name ? `<span class="kn">${esc(card.name)}</span>` : '')}</h3>
+      <div class="tags">${tags}</div></div>
+    <div class="btns">
+      <button class="ibtn" id="printBtn" title="Print profile" aria-label="Print this room profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V3h12v6M6 18H4a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-2M6 14h12v7H6z"/></svg></button>
+      <button class="ibtn" id="copyBtn" title="Copy link to this room" aria-label="Copy a link to this room"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1.5 1.5M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1.5-1.5"/></svg></button>
+      <button class="ibtn" id="closeBtn" title="Close (Esc)" aria-label="Close room profile">✕</button></div></div><div class="dbody">`;
+  if (images.length) {
+    h += `<figure class="herofig" style="margin:0"><img id="heroImg" src="${href(images[0].src)}" alt="${esc(images[0].cap)} for ${esc(r.label)}" data-i="0" tabindex="0" role="button" aria-label="Enlarge: ${esc(images[0].cap)}"><div class="cap"><span id="heroCap">${esc(images[0].cap)}</span><a id="heroSrc" href="${href(images[0].src2)}" target="_blank">Open source file${images[0].slide ? ` (slide ${images[0].slide})` : ''}</a></div></figure>`;
+    if (images.length > 1) h += `<div class="strip" role="group" aria-label="Images of this room">${images.map((im,i) => `<img src="${href(im.src)}" class="${i===0?'on':''}" data-i="${i}" alt="${esc(im.cap)}" title="${esc(im.cap)}" loading="lazy" tabindex="0" role="button" aria-pressed="${i===0}" aria-label="Show image ${i+1} of ${images.length}: ${esc(im.cap)}">`).join('')}</div>`;
+  }
+  const capSm = r.c, capDeck = (reset && reset.chairs) || (card && card.chairs);
+  h += `<div class="facts">
+    ${fact('Capacity', capSm || capDeck || '', true, capSm && capDeck && capSm !== capDeck ? `layout deck says ${capDeck}` : (capSm ? 'Space Management' : (capDeck ? 'from layout deck' : '')))}
+    ${fact('Timetable capacity', r.ttc, true, r.tt ? `timetable code ${r.tt}` : '')}
+    ${fact('Area', r.a ? r.a.toFixed(1) + ' m²' : '', true)}
+    ${fact('Ceiling', r.ceil ? (r.ceil/1000).toFixed(2) + ' m' : '')}
+    ${fact('Floor covering', r.cov)}
+    ${fact('Use', r.u)}
+    ${fact('Type', r.t && r.t !== r.u ? r.t : '')}
+    ${fact('Department', r.dep && r.dep !== 'Balance' ? r.dep : '')}
+    ${fact('Faculty', r.fac)}
+    ${fact('Timetable code', r.tt)}
+    ${fact('EMS code (Estates Management Statistics)', r.ems)}
+    ${fact('Cleaned', r.cln ? r.cln + '%' : '')}
+  </div>`;
+  if (r.map) h += `<div class="dsec"><h4>Location on floor ${esc(r.map[0])} plan<span class="sp"></span>${zoomTools()}</h4>${fpHTML(B, r.map[0], r.key)}</div>`;
+  if (reset) h += `<div class="dsec"><h4>Standard reset layout<span class="sp"></span></h4><div class="kv">
+      ${reset.style ? `<span>Style</span><b>${esc(reset.style)}</b>` : ''}
+      ${reset.chairs ? `<span>Chairs</span><b>${reset.chairs}</b>` : ''}
+      ${reset.tables !== null && reset.tables !== undefined ? `<span>Tables</span><b>${reset.tables}</b>` : ''}
+      ${reset.sizes ? `<span>Table sizes</span><b>${esc(reset.sizes)}</b>` : ''}
+      <span>Source</span><b><a href="${href(reset.deck)}" target="_blank">${esc(reset.deck.split('/').pop())}</a> · slide ${reset.slide}</b>
+      ${r.resetCards.length ? `<span>Printable card</span><b>${r.resetCards.map(l => `<a href="${href(l.f)}" target="_blank">${esc(l.f.split('/').pop())}</a>`).join(' · ')}</b>` : ''}</div>
+      ${B.contact.fm ? `<div class="note">Queries: <a href="mailto:${esc(B.contact.fm)}">${esc(B.contact.fm)}</a></div>` : ''}</div>`;
+  if (card) h += `<div class="dsec"><h4>Room card<span class="sp"></span></h4><div class="kv">
+      ${card.name ? `<span>Name</span><b>${esc(card.name)}</b>` : ''}
+      ${card.style ? `<span>Style</span><b>${esc(card.style)}</b>` : ''}
+      ${card.chairs ? `<span>Capacity</span><b>${card.chairs}</b>` : ''}
+      ${B.contact.reception ? `<span>Reception</span><b>ext ${esc(B.contact.reception)}</b>` : ''}
+      <span>Timetabling</span><b><a href="mailto:timetabling@castlegate.example">timetabling@castlegate.example</a></b>
+      <span>Source</span><b><a href="${href(card.deck)}" target="_blank">${esc(card.deck.split('/').pop())}</a> · slide ${card.slide}</b></div></div>`;
+  if (r.layShown.length) {
+    const groups = {};
+    r.layShown.forEach(l => (groups[l.s] = groups[l.s] || []).push(l));
+    h += `<div class="dsec"><h4>Furniture layouts <span style="font-weight:400;text-transform:none;letter-spacing:0">${r.layShown.length} file${r.layShown.length>1?'s':''}</span><span class="sp"></span></h4><div class="laygrid">` +
+      Object.entries(groups).map(([s, ls]) => {
+        const vis = ls.find(l => l.t || l.k !== 'dwg'), src = vis ? (vis.t || vis.f) : null;
+        const isImg = src && /\.(jpe?g|png|svg)$/i.test(src);
+        return `<div class="layc"><div class="im" ${isImg ? `data-lb="${href(src)}" data-cap="${esc(s)}" data-src2="${href(vis.f)}" role="button" tabindex="0" aria-label="Enlarge the ${esc(s)} layout drawing"` : ''}>${isImg ? `<img loading="lazy" src="${href(src)}" alt="${esc(s)} layout drawing">` : '—'}</div>
+          <div class="cap"><b>${esc(s)}</b><div class="links">${ls.map(l => `<a href="${href(l.f)}" target="_blank" aria-label="Open the ${esc(s)} layout as ${l.k.toUpperCase()}: ${esc(l.f.split('/').pop())}">${l.k.toUpperCase()}</a>`).join('')}</div></div></div>`;
+      }).join('') + `</div></div>`;
+  }
+  if (r.util) {
+    const u = r.util, maxH = Math.max(1, ...u.h.map(x => x[1]));
+    h += `<div class="dsec"><h4>Observed utilisation<span class="sp"></span></h4>
+      <div class="utilhead"><b>${u.avg}%</b><span>average occupancy · peak ${u.peak}% · ${u.n} observations · counted capacity ${u.cap}</span></div>
+      ${u.h.length ? `<div class="bars" style="margin-bottom:22px" role="img" aria-label="Occupancy by hour: ${u.h.map(([hh,p]) => hh + ':00 ' + p + '%').join(', ')}">${u.h.map(([hh,p]) => `<div style="height:${Math.max(3, p/maxH*100)}%" title="${p}% at ${hh}:00"><i aria-hidden="true">${hh}</i></div>`).join('')}</div>` : ''}
+      <div class="note">${esc(u.src)}. Occupancy = people counted ÷ seats, averaged across survey slots.</div></div>`;
+  }
+  const pl = B.plans[r.f];
+  if (pl) {
+    h += `<div class="dsec"><h4>Floor ${esc(r.f)} printable plans<span class="sp"></span></h4><div class="plans">` +
+      PLAN_ORDER.filter(t => pl[t]).map(t => `<a class="plan" href="${href(pl[t].f)}" target="_blank" aria-label="Open the ${esc(t)} plan for floor ${esc(r.f)} (PDF)">${pl[t].t ? `<img loading="lazy" src="${href(pl[t].t)}" alt="">` : ''}<div class="cap"><b>${esc(t)}</b><span class="sub">PDF</span></div></a>`).join('') + `</div>`;
+    const a = D.amen[B.n + '|' + r.f];
+    if (a && a.length) h += `<div class="amen">${a.map(c => IC[c] ? `<span><b class="ic ${IC[c][0]}">${IC[c][1]}</b> ${IC[c][2]}</span>` : '').join('')}</div>`;
+    h += `</div>`;
+  }
+  const bdocs = [...(B.elev || []).map(e => ({f:e.f, d:e.d, k:'ELEV'})), ...(B.decks || []).map(d => ({f:d.f, d:d.d + ' deck', k:'PPTX', n:d.n + ' slides'}))];
+  if (bdocs.length) h += `<div class="dsec"><h4>Building documents<span class="sp"></span></h4><div class="linklist">${bdocs.map(d => `<a href="${href(d.f)}" target="_blank"><span class="k">${d.k}</span>${esc(d.d)}${d.n ? `<span class="n">${d.n}</span>` : ''}</a>`).join('')}</div></div>`;
+  const near = R.filter(x => x.bi === r.bi && x.f === r.f && x.learn && x.key !== r.key).sort((x,y) => String(x.ref).localeCompare(String(y.ref), undefined, {numeric:true}));
+  if (near.length) h += `<div class="dsec"><h4>Other learning spaces on this floor<span class="sp"></span></h4><div class="nearby">${near.slice(0,40).map(x => `<button data-room="${x.key}" aria-label="Open room ${esc(x.label)}, ${esc(x.k || x.u)}${x.c ? `, ${x.c} seats` : ''}">${esc(x.ref)}<small aria-hidden="true">${esc(x.k || x.u)}${x.c ? ` · ${x.c}` : ''}</small></button>`).join('')}${near.length > 40 ? `<span class="sub">+${near.length-40} more</span>` : ''}</div></div>`;
+  h += `<div class="note" style="margin-top:28px">Invented data for teaching · built ${D.built}. No real room is described here.</div></div>`;
+
+  const dr = $('drawer'); const wasOpen = dr.classList.contains('open');
+  dr.innerHTML = h; dr.setAttribute('aria-label', `Room profile: ${r.label}${r.k ? ', ' + r.k : ''}`);
+  $('scrim').classList.add('open'); dr.querySelector('.dbody').scrollTop = 0;
+  if (!wasOpen) openDialog(dr, dr.querySelector('#dTitle')); else dr.querySelector('#dTitle').focus();
+  $('closeBtn').onclick = closeRoom;
+  $('printBtn').onclick = () => window.print();
+  $('copyBtn').onclick = e => { if (navigator.clipboard) navigator.clipboard.writeText(location.href); e.currentTarget.classList.add('on'); setTimeout(() => e.currentTarget.classList.remove('on'), 900); };
+  dr.querySelectorAll('[data-go]').forEach(a => { a.setAttribute('href', '#'); a.setAttribute('role', 'button'); a.onclick = e => { e.preventDefault(); S.b = r.b; S.f = a.dataset.go === 'f' ? r.f : ''; expanded[r.b] = true; closeRoom(); renderTree(); render(); writeHash(); }; });
+  dr.querySelectorAll('.nearby [data-room]').forEach(b => b.onclick = () => openRoom(b.dataset.room));
+  wireFP(dr, openRoom, B);
+  const cur = dr.querySelector('.fp .hot.cur');
+  if (cur) { const wrap = cur.closest('.fpwrap'), img = wrap.querySelector('img');
+    const centre = () => { wrap.scrollTop = Math.max(0, cur.offsetTop - wrap.clientHeight / 2); wrap.scrollLeft = Math.max(0, cur.offsetLeft - wrap.clientWidth / 2); };
+    img.onload = centre; if (img.complete) centre(); }
+  dr.querySelectorAll('.strip img').forEach(im => {
+    im.onclick = () => {
+      const i = +im.dataset.i;
+      $('heroImg').src = href(images[i].src); $('heroImg').dataset.i = i; $('heroCap').textContent = images[i].cap;
+      $('heroImg').alt = `${images[i].cap} for ${r.label}`; $('heroImg').setAttribute('aria-label', 'Enlarge: ' + images[i].cap);
+      $('heroSrc').href = href(images[i].src2); $('heroSrc').textContent = 'Open source file' + (images[i].slide ? ` (slide ${images[i].slide})` : '');
+      dr.querySelectorAll('.strip img').forEach(x => { x.classList.toggle('on', x === im); x.setAttribute('aria-pressed', x === im); });
+    };
+    im.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); im.click(); } };
+  });
+  const hi = $('heroImg'); if (hi) hi.onclick = () => { const im = images[+hi.dataset.i]; lightbox(im.src, im.cap, im.src2); };
+  dr.querySelectorAll('[data-lb]').forEach(el => el.onclick = () => lightbox(decodeURI(el.dataset.lb), el.dataset.cap, decodeURI(el.dataset.src2)));
+  document.querySelectorAll('#ctx .fp .hot').forEach(x => x.classList.toggle('cur', x.dataset.room === key));
+}
+function closeRoom() {
+  closeDialog($('drawer')); $('scrim').classList.remove('open'); S.room = null; writeHash();
+  document.querySelectorAll('#ctx .fp .hot.cur').forEach(x => x.classList.remove('cur'));
+}
+$('scrim').onclick = closeRoom;
+function lightbox(src, cap, src2) {
+  const lb = $('lb'), im = lb.querySelector('img');
+  im.src = href(src); im.alt = cap || 'Enlarged drawing';
+  lb.querySelector('.cap').innerHTML = `${esc(cap || '')} ${src2 ? `· <a href="${href(src2)}" target="_blank">Open the original file</a>` : ''}`;
+  openDialog(lb, lb.querySelector('.x'));
+}
+$('lb').querySelector('.x').onclick = () => closeDialog($('lb'));
+$('lb').onclick = e => { if (e.target === $('lb') || e.target.tagName === 'IMG') closeDialog($('lb')); };
+
+/* ===================== wiring ===================== */
+function clearAll() {
+  S.q = ''; $('q').value = ''; S.typ = ''; S.cap = 0; S.quick.clear(); S.funcs.clear(); S.b = ''; S.f = '';
+  S.userSorted = false; S.sort = 'b'; S.dir = 1; S.lim = 200;
+  renderChips(); refresh(); window.scrollTo(0, 0);
+}
+let qT;
+$('q').addEventListener('input', () => { clearTimeout(qT); qT = setTimeout(() => { S.q = $('q').value; S.lim = 200; S.userSorted = false; refresh(); }, 120); });
+$('treeQ').addEventListener('input', renderTree);
+$('clearAll').onclick = clearAll;
+$('home').onclick = e => { e.preventDefault(); clearAll(); };
+$('navToggle').onclick = () => { const open = $('side').classList.toggle('open'); $('navToggle').setAttribute('aria-expanded', open); };
+const themeKey = 'rf-theme';
+function applyTheme(t) {
+  if (t === 'dark') document.documentElement.dataset.theme = 'dark'; else delete document.documentElement.dataset.theme;
+  $('themeBtn').setAttribute('aria-pressed', t === 'dark');
+}
+try { applyTheme(localStorage.getItem(themeKey) || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')); } catch (e) {}
+$('themeBtn').onclick = () => { const t = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'; applyTheme(t); try { localStorage.setItem(themeKey, t); } catch (e) {} };
+document.addEventListener('keydown', e => {
+  if ($('pm').classList.contains('open')) {
+    if (e.key === 'Escape') closePlanModal(); else if (e.key === '+' || e.key === '=') pmZoomAt(1.25);
+    else if (e.key === '-') pmZoomAt(0.8); else if (e.key === '0') pmFit();
+    return;
+  }
+  if (e.key === 'Escape') {
+    if ($('lb').classList.contains('open')) closeDialog($('lb'));
+    else if ($('helpModal').classList.contains('open')) closeDialog($('helpModal'));
+    else if ($('typeModal').classList.contains('open')) closeDialog($('typeModal'));
+    else if ($('drawer').classList.contains('open')) closeRoom();
+  }
+  if (e.key === '/' && !/INPUT|SELECT|TEXTAREA/.test(document.activeElement.tagName)) { e.preventDefault(); $('q').focus(); $('q').select(); }
+});
+window.addEventListener('hashchange', () => {
+  if (hashLock) return;
+  readHash(); $('q').value = S.q; renderChips(); refresh();
+  if (S.room) openRoom(S.room); else if ($('drawer').classList.contains('open')) closeRoom();
+});
+
+readHash();
+$('q').value = S.q;
+if (window.innerWidth < 700 && S.view === 'table') S.view = 'grid';
+renderChips();
+refresh();
+if (S.room) openRoom(S.room);
+</script>
+</body>
+</html>
