@@ -16,7 +16,7 @@ MOCK_REPOSITORY = '''
 <div class="mk mk-repo" role="img" aria-label="The document search: filters for company, document type, sub-type, active project and signatory on the left; a search box and three results on the right, each with its code, company, type, status, place and date of signing.">
   <aside>
     <h5>Company</h5>
-    <ul class="mk-list"><li>Zenithasia Corp. <i>8</i></li><li>Blue Lotus Solutions <i>7</i></li><li>Kinetica Innovations Ltd. <i>6</i></li><li>Jade Mountain Holdings <i>3</i></li><li>Dragonfly Enterprises Inc. <i>2</i></li></ul>
+    <ul class="mk-list"><li>Zenithasia Corp. <i>8</i></li><li>Quorivale Ltd. <i>7</i></li><li>Talverin Group <i>6</i></li><li>Jade Mountain Holdings <i>3</i></li><li>Merovane Holdings <i>2</i></li></ul>
     <h5>Document type</h5>
     <div class="mk-chips"><b>Legal 45</b><b class="on">Financial 20</b><b>HR 30</b><b>Strategic 12</b><b>Operational 12</b></div>
     <h5>Financial</h5>
@@ -33,36 +33,70 @@ MOCK_REPOSITORY = '''
       <p><code>ZC.F.20200923.0</code> · Zenithasia Corp. · Statements · <u>Completed</u></p>
       <p class="mk-where">Signed in Hong Kong · 23 Sep 2020</p></article>
     <article><h6>Social Responsibility Audit Report for EU Green Investment Grant</h6>
-      <p><code>BLS.F.20200921.0</code> · Blue Lotus Solutions · Reports · <u>Completed</u></p>
+      <p><code>QL.F.20200921.0</code> · Quorivale Ltd. · Reports · <u>Completed</u></p>
       <p class="mk-where">Signed in Singapore · 21 Sep 2020 · <em>Active: EU green grant</em></p></article>
     <article><h6>Procurement for Robotic Lab Equipment</h6>
-      <p><code>KI.F.20200819.0</code> · Kinetica Innovations Ltd. · Purchase orders · <u>Completed</u></p>
+      <p><code>TG.F.20200819.0</code> · Talverin Group · Purchase orders · <u>Completed</u></p>
       <p class="mk-where">Signed in Hong Kong · 19 Aug 2020</p></article>
   </section>
 </div>'''
 
-def poster(en, zh, left, right):
-    return f'<div class="mk-poster"><span class="en">{en}</span><span class="zh">{zh}</span><span class="ex">← {left}<br>→ {right}</span></div>'
+MOCK_NAMING = '''
+<div class="mk mk-naming" role="img" aria-label="The naming rule, broken down: ZC, the company; F, the document family; 20200923, the date signed; 0, the sequence number for that day; then the title in plain words.">
+  <p class="mk-file">ZC.F.20200923.0_Zenithasia_Corp._2020_Financial_Statement.pdf</p>
+  <div class="mk-code"><span>ZC</span><i>.</i><span>F</span><i>.</i><span>20200923</span><i>.</i><span>0</span><i>_</i><span class="t">Title in plain words</span></div>
+  <div class="mk-parts">
+    <div><b>ZC</b><span>Company</span><em>Its initials: Zenithasia Corp. One code per company, six in all.</em></div>
+    <div><b>F</b><span>Family</span><em>L legal · F financial · H HR · S strategic · O operational. More than fifty kinds of document, five letters.</em></div>
+    <div><b>20200923</b><span>Date signed</span><em>Year, month, day: names sort in time order on any computer.</em></div>
+    <div><b>0</b><span>Sequence</span><em>The first document that company signed that day; the next is 1.</em></div>
+    <div><b>Title</b><span>In plain words</span><em>What the document is, readable by anyone.</em></div>
+  </div>
+  <p class="mk-rule">Read left to right: <b>whose · what kind · when · which one · what it says</b>, before anyone opens the file.</p>
+</div>'''
 
-MOCK_FACTORY = '''
-<div class="mk mk-factory" role="img" aria-label="Four place-name posters — Shenyang, Nanjing, Guiyang and Nanchang — each with arrows to the two nearest exits, named after classical poets; beside them, the phone screen for welding machine 372, with its inspection date, status, manuals in two languages, supervisors and checklists.">
-  <div class="mk-posters">''' + \
+def poster(en, zh, left, right):
+    return f'<div class="mk-poster"><span class="en">{en}</span><span class="zh">{zh}</span><span class="ex"><span>← {left}</span><span>→ {right}</span></span></div>'
+
+MOCK_POSTERS = '''
+<div class="mk mk-posters" role="img" aria-label="Four place-name posters: Shenyang, Nanjing, Guiyang and Nanchang, each in large Chinese characters with the English name above, and arrows to the two nearest exits, named after classical poets.">''' + \
     poster('Shenyang', '沈陽', '陸遊 Lu You', '王維 Wang Wei') + \
     poster('Nanjing', '南京', '杜牧 Du Mu', '李煜 Li Houzhu') + \
     poster('Guiyang', '貴陽', '王維 Wang Wei', '韓愈 Han Yu') + \
-    poster('Nanchang', '南昌', '杜甫 Du Fu', '白居易 Bai Juyi') + '''
+    poster('Nanchang', '南昌', '杜甫 Du Fu', '白居易 Bai Juyi') + '</div>'
+
+def machine(zh, en, n, insp, wear):
+    return f'<li><b>{zh} {n} {en}</b><span class="mk-tags"><em>Inspection {insp}</em><em>{wear} wear</em><em>Good</em></span></li>'
+
+MOCK_SCREENS = '''
+<div class="mk mk-screens" role="img" aria-label="Three phone screens. One: a location, Factory 02, Nanjing, listing the machines there with inspection date, wear and status. Two: welding machine 372, with its manuals, supervisors and checklists. Three: step-by-step directions from Factory 02 to Factory 05, in English and Chinese.">
+  <div class="mk-phone">
+    <p class="mk-top"><span>地點 Location</span><span>方向 Directions →</span></p>
+    <div class="mk-place"><small>Factory 工廠 02</small><b>南京 Nanjing</b></div>
+    <p class="mk-label">機器在這裡 Machines here</p>
+    <ul class="mk-machines">''' + \
+      machine('焊接机器', 'Welding', 372, '2019/09/23', '2%') + \
+      machine('工業機器人', 'Industrial robot', 16, '2020/01/14', '0%') + \
+      machine('注塑机', 'Injection moulding', '09', '2017/02/20', '31%') + \
+      machine('傳送帶', 'Conveyor belt', 87, '2019/11/18', '4%') + '''
+    </ul>
   </div>
   <div class="mk-phone">
-    <p class="mk-crumb">← 南京 Nanjing · Floor 2</p>
+    <p class="mk-top"><span>← Factory 工廠 02 南京 Nanjing</span></p>
     <h6>焊接机器 372<br>Welding</h6>
-    <p class="mk-tags"><b>Inspected 2020-09-23</b><b>2% wear</b><b class="ok">Good</b></p>
-    <p class="mk-label">Manuals</p>
-    <div class="mk-docs"><span>PDF<br>English</span><span>PDF<br>中文</span><span>PDF<br>Safety</span></div>
-    <p class="mk-label">Supervisors</p>
-    <p class="mk-people"><span>Shift: 張 Zhang</span><span>Line: 王 Wang</span></p>
-    <p class="mk-label">Checklists</p>
-    <div class="mk-chips"><b class="on">Operations</b><b>Maintenance</b><b>Receiving</b></div>
-    <p class="mk-size">A− A A+</p>
+    <p class="mk-tags"><em>Inspection 2019/09/23</em><em>2% wear</em><em>Good</em></p>
+    <div class="mk-docs"><span>PDF<br>操作手冊</span><span>PDF<br>安全手冊</span><span>PDF<br>Operational manual</span></div>
+    <p class="mk-people"><span><small>導師 Supervisor</small>張 Zhang</span><span><small>值班主任 Shift supervisor</small>王 Wang</span></p>
+    <p class="mk-label">清單 Checklists</p>
+    <div class="mk-chips"><b class="on">操作 Operations</b><b>機器維修 Maintenance</b><b>進貨程序 Receiving</b></div>
+    <div class="mk-step"><b>Operations · 1</b> Wear the right safety gear: welding helmet, gloves and safety glasses.</div>
+  </div>
+  <div class="mk-phone">
+    <p class="mk-top"><span>← 焊接机器 372 Welding</span></p>
+    <p class="mk-label">從 From</p><div class="mk-field">Factory 工廠 02 南京 Nanjing</div>
+    <p class="mk-label">到 To</p><div class="mk-field">Factory 工廠 05 合肥 Hefei</div>
+    <ol class="mk-dir"><li>Exit the building from gate C.</li><li>Take a golf cart to Factory 05.</li><li>Enter Factory 05 from gate B.</li><li>Take lift 03 to the 7th floor.</li><li>Turn left; walk 100 metres to 合肥 Hefei.</li></ol>
+    <ol class="mk-dir zh"><li>從 C 門離開建築物。</li><li>乘坐高爾夫車前往工廠 05。</li><li>從 B 門進入工廠 05。</li></ol>
   </div>
 </div>'''
 
@@ -73,7 +107,7 @@ ROOMS = [('GW G.03', 'Ground', 'Lecture Theatre 1', 'Lecture theatre', '180', '1
          ('GW 1.04', '1', 'Computer Room', 'Computer lab', '95', '40'),
          ('GW 2.01', '2', 'Design Studio', 'Studio', '120', '30')]
 MOCK_ROOMS = '''
-<div class="mk mk-rooms" role="img" aria-label="Room Finder on Castlegate, a fictional campus: a search for Glassworks returns 28 rooms, 12 learning spaces and 546 seats, listed with floor, name, use, area and seats, with filters for seats and function.">
+<div class="mk mk-rooms" role="img" aria-label="Room Finder, with sample data: a search for Glassworks returns 28 rooms, 12 learning spaces and 546 seats, listed with floor, name, use, area and seats, with filters for seats and function.">
   <div class="mk-bar"><b>RF</b><span class="mk-search"><span>Glassworks</span></span></div>
   <div class="mk-chips mk-filters"><b class="on">Teaching spaces</b><b>Timetabled</b><b>30+ seats</b><b>Computer lab</b><b>Studio</b></div>
   <p class="mk-stats"><b>28</b> rooms <b>12</b> learning spaces <b>546</b> seats <b>1,599</b> m²</p>
@@ -101,7 +135,9 @@ CASES = [
       ('A programme failing under its previous manager',
        'Back on track, and adopted immediately', '')],
   ba_note='Hours: estimate, combined across the group.',
-  mock=MOCK_REPOSITORY, mock_cap='Re-created from the original design. Company and project names are fictional.',
+  stat=('15–20 → 2', 'hours a week', 'spent searching for documents and meeting about them, across the group (estimate)'),
+  figs=[(MOCK_REPOSITORY, 'The search, re-created from the original design. Company and project names are invented.')],
+  how_fig=(MOCK_NAMING, 'The naming rule that makes the search work: every company files the same way.'),
   who=[('Client', 'The board of a group of five companies'),
        ('Region', 'Macau, Taiwan, Guangzhou and Hong Kong: four legal systems'),
        ('People', 'About 50, of whom about 40 in mainland China and Macau'),
@@ -132,7 +168,10 @@ CASES = [
       ('Two months agreed for delivery',
        'Delivered in one', 'big')],
   ba_note='Two campuses, five to six buildings each. 2018–2020.',
-  mock=MOCK_FACTORY, mock_cap='Re-created from the original designs: four posters from the series, and the phone screen for one machine. Sites withheld.',
+  stat=('1', 'month, not 2', 'from the first floor to every required floor on both campuses'),
+  figs=[(MOCK_POSTERS, 'Four posters from the series, re-created. Each names a place after a city and points to the two nearest exits, named after poets.'),
+        (MOCK_SCREENS, 'Three screens from the phone app, re-created with sample data: a place, a machine, and directions between buildings. Sites withheld.')],
+  how_fig=None,
   who=[('Client', 'A state-owned manufacturer'),
        ('Region', 'Mainland China, 2018–2020'),
        ('Scale', 'Two campuses of five to six buildings each'),
@@ -160,7 +199,9 @@ CASES = [
       ('No single source anyone trusted',
        'One place to look, built only from existing files', '')],
   ba_note='Working prototype; a six-week pilot is proposed, measured on time to answer.',
-  mock=MOCK_ROOMS, mock_cap='Re-created from the working prototype, on Castlegate, a fictional campus built for teaching.',
+  stat=('15,000+', 'rooms, one search', 'across more than 40 buildings, built from records the institution already had'),
+  figs=[(MOCK_ROOMS, 'Re-created from the working prototype, with sample data.')],
+  how_fig=None,
   who=[('Client', 'A large UK university'),
        ('Scale', 'More than 15,000 rooms in over 40 buildings'),
        ('My role', 'Designed and built it'),
@@ -174,7 +215,7 @@ CASES = [
   impact=[('One search', 'across more than 15,000 rooms in over 40 buildings'),
           ('Contradictions visible', 'conflicts between records listed for correction at source'),
           ('Next: a pilot', 'six weeks, measured on time to answer')],
-  see=('prototypes/room-finder.html', 'See it working: a teaching version with a fictional campus →')),
+  see=('prototypes/room-finder.html', 'See the working prototype (sample data) →')),
 ]
 
 # ── templates ─────────────────────────────────────────────────────────────────
@@ -187,7 +228,9 @@ def page(title, body, extra_head=''):
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{title}</title>
 <meta name="robots" content="noindex">
-{extra_head}<link rel="stylesheet" href="site.css">
+{extra_head}<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="site.css">
 </head>
 <body>
 <div class="wrap">
@@ -223,10 +266,11 @@ def case_page(c, i):
 <h1>{c['title']}</h1>
 <p class="lead">{c['lead']}</p>
 
+<div class="stat"><p class="stat-n">{c['stat'][0]}</p><p class="stat-u">{c['stat'][1]}</p><p class="stat-c">{c['stat'][2]}</p></div>
+
 {ba_block(c)}
 <p class="ba-get"><a href="img/share-{c['slug']}.png" download>Download this summary as an image</a></p>
-
-<figure class="mock">{c['mock']}<figcaption>{c['mock_cap']}</figcaption></figure>
+{''.join(f'<figure class="mock">{m}<figcaption>{cap}</figcaption></figure>' for m, cap in c['figs'])}
 
 <h2>Who</h2>
 <dl class="facts">{who}</dl>
@@ -234,7 +278,7 @@ def case_page(c, i):
 <h2>What</h2>
 <p>{c['what']}</p>
 
-<h2>How</h2>{fig if c['diagram_in'] == 'how' else ''}
+<h2>How</h2>{fig if c['diagram_in'] == 'how' else ''}{f'<figure class="mock">{c["how_fig"][0]}<figcaption>{c["how_fig"][1]}</figcaption></figure>' if c['how_fig'] else ''}
 <ol class="did">{how}</ol>
 
 <h2>Impact</h2>{fig if c['diagram_in'] == 'impact' else ''}
@@ -278,7 +322,7 @@ information, rules or services no longer fit the people who use them.</p>
 <div class="cases">{cards}
 </div>
 <p class="note">Client names are withheld. Figures are measured, or marked as estimates; where there
-is no figure, none is given. Screens are re-created with fictional data.</p>
+is no figure, none is given. Screens are re-created with sample data.</p>
 
 <h2>Contact</h2>
 <ul class="contact">
@@ -289,6 +333,8 @@ is no figure, none is given. Screens are re-created with fictional data.</p>
 
 def bare(title, inner, cls):
     return f'''<!DOCTYPE html><html lang="en-GB"><head><meta charset="utf-8"><title>{title}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../site.css"></head><body class="{cls}">{inner}</body></html>
 '''
 
@@ -298,7 +344,7 @@ def build():
     for i, c in enumerate(CASES):
         (ROOT / f'{c["slug"]}.html').write_text(case_page(c, i))
         (gen / f'share-{c["slug"]}.html').write_text(bare(c['short'], ba_block(c, share=True), 'shot-share'))
-        (gen / f'thumb-{c["slug"]}.html').write_text(bare(c['short'], c['mock'], 'shot-thumb'))
+        (gen / f'thumb-{c["slug"]}.html').write_text(bare(c['short'], c['figs'][0][0], 'shot-thumb'))
     print('pages written')
 
 def images():
